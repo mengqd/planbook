@@ -1,3 +1,7 @@
+// 发布版按 GUI 程序运行，Windows 下不再弹出控制台窗口；
+// debug 版保留控制台，方便查看日志
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 use std::fs;
 use std::path::PathBuf;
 use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
