@@ -189,19 +189,22 @@ fn show_sticky(app: tauri::AppHandle) -> Result<(), String> {
     .title("今日任务")
     .inner_size(300.0, 150.0)
     .min_inner_size(200.0, 90.0)
-    .decorations(false)
-    .transparent(true)
     .always_on_top(true)
-    // macOS 无边框窗口不开启此项时，第一次点击会被窗口激活吞掉，导致拖动失灵（Windows 上自动忽略）
+    // macOS 无边框窗口不开启此项时，第一次点击会被窗口激活吞掉，导致拖动失灵（Windows 上忽略）
     .accept_first_mouse(true)
-    // Windows：便签窗口不再额外占用一个任务栏图标（macOS 上无效）
-    .skip_taskbar(true)
-    // 注意：这里不要加 no_redirection_bitmap(true)。
-    // Windows 上透明是靠 tao 调用 DwmEnableBlurBehindWindow 实现的，
-    // 而该调用仅在 no_redirection_bitmap 为 false 时执行，
-    // 一旦设为 true 窗口就会变成不透明的白色。
     // 在页面脚本执行前注入标记，让前端确定性地渲染便签界面（不依赖窗口标签判断）
     .initialization_script("window.__PLANBOOK_STICKY__ = true;");
+
+    // ---- 平台差异 ----
+    // macOS：无边框 + 真透明，效果最好，且已验证可用。
+    // Windows：透明依赖 tao 内部调用 DwmEnableBlurBehindWindow，实测会白屏甚至卡死，
+    //          且无法在此环境调试。因此改用原生带边框窗口：
+    //          标题栏可拖动、有原生关闭按钮、边缘可拉伸——全都由系统保证，稳定可靠。
+    if cfg!(target_os = "windows") {
+        builder = builder.decorations(true).transparent(false);
+    } else {
+        builder = builder.decorations(false).transparent(true);
+    }
 
     // 无边框窗口默认落点可能压在菜单栏下，这里显式放到右上角安全区
     let mut placed = false;

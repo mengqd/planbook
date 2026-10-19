@@ -512,6 +512,28 @@ body.sticky #root {
   background: transparent;
 }
 
+/* Windows：便签窗口是不透明的（系统保证稳定），改用深色面板，避免纯白 */
+body.sticky.win,
+body.sticky.win #root {
+  background: #171a21;
+}
+
+body.sticky.win .stick-root {
+  background: #1f2430;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: none;
+}
+
+/* Windows 上底色固定为深色，隐藏"黑字"切换，避免看不清 */
+body.sticky.win .stick-root.light {
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: none;
+}
+
+body.sticky.win .stick-btn.theme {
+  display: none;
+}
+
 .stick-root {
   height: 100vh;
   display: flex;

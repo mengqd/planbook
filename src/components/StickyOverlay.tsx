@@ -226,7 +226,11 @@ export default function StickyOverlay() {
         <span className="stick-count">
           {doneCount}/{todayPlans.length}
         </span>
-        <button className="stick-btn" title="切换文字颜色" onClick={toggleTheme}>
+        <button
+          className="stick-btn theme"
+          title="切换文字颜色"
+          onClick={toggleTheme}
+        >
           {light ? '🌙' : '☀️'}
         </button>
         <button className="stick-btn close" title="关闭便签（也可按 Esc）" onClick={close}>
