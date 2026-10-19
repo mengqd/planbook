@@ -196,8 +196,10 @@ fn show_sticky(app: tauri::AppHandle) -> Result<(), String> {
     .accept_first_mouse(true)
     // Windows：便签窗口不再额外占用一个任务栏图标（macOS 上无效）
     .skip_taskbar(true)
-    // Windows：避免透明窗口在内容渲染前闪白（macOS 上无效）
-    .no_redirection_bitmap(true)
+    // 注意：这里不要加 no_redirection_bitmap(true)。
+    // Windows 上透明是靠 tao 调用 DwmEnableBlurBehindWindow 实现的，
+    // 而该调用仅在 no_redirection_bitmap 为 false 时执行，
+    // 一旦设为 true 窗口就会变成不透明的白色。
     // 在页面脚本执行前注入标记，让前端确定性地渲染便签界面（不依赖窗口标签判断）
     .initialization_script("window.__PLANBOOK_STICKY__ = true;");
 
