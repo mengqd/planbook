@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>便签</title>
+    <script>
+      // Windows 的便签窗口是不透明的，样式表加载前窗口会先露出系统白底。
+      // 这里在最早时机把底色刷成深色，避免打开便签时闪一下白屏。
+      if (
+        window.__PLANBOOK_STICKY__ &&
+        navigator.userAgent.indexOf('Windows') !== -1
+      ) {
+        document.documentElement.style.background = '#171a21';
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

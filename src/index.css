@@ -512,18 +512,16 @@ body.sticky #root {
   background: transparent;
 }
 
-/* Windows：叠加系统毛玻璃（Mica/Acrylic）。
-   这里再加一层半透明深色底板兜底——
-   即使毛玻璃没生效、窗口变成不透明白色，也会被这层底板盖住，不会出现纯白。 */
+/* Windows：便签窗口是「不透明无边框」的（窗口级透明会卡死主线程，见 main.rs 说明），
+   所以底色必须由 CSS 铺满，否则窗口会露出系统白底。
+   面板用实色深灰，外圈略深一档，形成一圈自然的描边。 */
 body.sticky.win,
 body.sticky.win #root {
-  background: transparent;
+  background: #171a21;
 }
 
 body.sticky.win .stick-root {
-  background: rgba(24, 28, 36, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #1f2430;
   border-radius: 10px;
   color: rgba(255, 255, 255, 0.94);
 }
