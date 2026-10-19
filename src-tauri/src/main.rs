@@ -192,8 +192,12 @@ fn show_sticky(app: tauri::AppHandle) -> Result<(), String> {
     .decorations(false)
     .transparent(true)
     .always_on_top(true)
-    // macOS 无边框窗口不开启此项时，第一次点击会被窗口激活吞掉，导致拖动失灵
+    // macOS 无边框窗口不开启此项时，第一次点击会被窗口激活吞掉，导致拖动失灵（Windows 上自动忽略）
     .accept_first_mouse(true)
+    // Windows：便签窗口不再额外占用一个任务栏图标（macOS 上无效）
+    .skip_taskbar(true)
+    // Windows：避免透明窗口在内容渲染前闪白（macOS 上无效）
+    .no_redirection_bitmap(true)
     // 在页面脚本执行前注入标记，让前端确定性地渲染便签界面（不依赖窗口标签判断）
     .initialization_script("window.__PLANBOOK_STICKY__ = true;");
 
