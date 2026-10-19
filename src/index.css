@@ -512,16 +512,20 @@ body.sticky #root {
   background: transparent;
 }
 
-/* Windows：便签窗口是不透明的（系统保证稳定），改用深色面板，避免纯白 */
+/* Windows：叠加系统毛玻璃（Mica/Acrylic）。
+   这里再加一层半透明深色底板兜底——
+   即使毛玻璃没生效、窗口变成不透明白色，也会被这层底板盖住，不会出现纯白。 */
 body.sticky.win,
 body.sticky.win #root {
-  background: #171a21;
+  background: transparent;
 }
 
 body.sticky.win .stick-root {
-  background: #1f2430;
-  color: rgba(255, 255, 255, 0.92);
-  text-shadow: none;
+  background: rgba(24, 28, 36, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.94);
 }
 
 /* Windows 上底色固定为深色，隐藏"黑字"切换，避免看不清 */

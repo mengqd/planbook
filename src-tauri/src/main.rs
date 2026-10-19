@@ -5,6 +5,10 @@
 use std::fs;
 use std::path::PathBuf;
 use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
+#[cfg(target_os = "windows")]
+use tauri::utils::config::WindowEffectsConfig;
+#[cfg(target_os = "windows")]
+use tauri::utils::WindowEffect;
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -195,16 +199,10 @@ fn show_sticky(app: tauri::AppHandle) -> Result<(), String> {
     // 在页面脚本执行前注入标记，让前端确定性地渲染便签界面（不依赖窗口标签判断）
     .initialization_script("window.__PLANBOOK_STICKY__ = true;");
 
-    // ---- 平台差异 ----
-    // macOS：无边框 + 真透明，效果最好，且已验证可用。
-    // Windows：透明依赖 tao 内部调用 DwmEnableBlurBehindWindow，实测会白屏甚至卡死，
-    //          且无法在此环境调试。因此改用原生带边框窗口：
-    //          标题栏可拖动、有原生关闭按钮、边缘可拉伸——全都由系统保证，稳定可靠。
-    if cfg!(target_os = "windows") {
-        builder = builder.decorations(true).transparent(false);
-    } else {
-        builder = builder.decorations(false).transparent(true);
-    }
+    // 无边框 + 透明：两个平台一致。
+    // Windows 上再叠加系统毛玻璃效果（见下方 set_effects），
+    // 并且 CSS 侧有半透明深色底板兜底，即使效果不生效也不会白屏。
+    builder = builder.decorations(false).transparent(true);
 
     // 无边框窗口默认落点可能压在菜单栏下，这里显式放到右上角安全区
     let mut placed = false;
@@ -222,9 +220,29 @@ fn show_sticky(app: tauri::AppHandle) -> Result<(), String> {
         builder = builder.center();
     }
 
-    builder
+    let win = builder
         .build()
         .map_err(|e| format!("创建便签窗口失败: {e}"))?;
+
+    // Windows：叠加系统毛玻璃。Win11 用 Mica，不支持则回退 Acrylic（Win10）。
+    // Tauri 要求 effects 必须配 transparent，所以上面开了 transparent。
+    #[cfg(target_os = "windows")]
+    {
+        if win
+            .set_effects(WindowEffectsConfig {
+                effects: vec![WindowEffect::Mica],
+                ..Default::default()
+            })
+            .is_err()
+        {
+            let _ = win.set_effects(WindowEffectsConfig {
+                effects: vec![WindowEffect::Acrylic],
+                ..Default::default()
+            });
+        }
+    }
+    let _ = &win;
+
     Ok(())
 }
 
