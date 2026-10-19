@@ -201,30 +201,19 @@ async fn show_sticky(app: tauri::AppHandle) -> Result<(), String> {
     // 在页面脚本执行前注入标记，让前端确定性地渲染便签界面（不依赖窗口标签判断）
     .initialization_script("window.__PLANBOOK_STICKY__ = true;");
 
-    builder = builder.decorations(false);
-
-    // ---- 平台差异：这里是 Windows「钉桌面卡死」的根因 ----
+    // 无边框 + 真透明：两个平台一致。
     //
-    // tao 在 WM_CREATE 里对「transparent 且未设 no_redirection_bitmap」的窗口
-    // 同步调用早已废弃的 DwmEnableBlurBehindWindow：
-    //   src/platform_impl/windows/window.rs:
-    //     if self.attributes.transparent && !self.pl_attribs.no_redirection_bitmap {
-    //         ... DwmEnableBlurBehindWindow(win.hwnd(), &bb);   // 同步 DWM RPC
-    //     }
-    // 这个调用是阻塞式的 DWM 往返，在 Windows 10/11 + WebView2 上会把主线程卡住，
-    // 窗口同时变成不透明的白色 —— 表现就是「一点钉桌面，整个程序卡死」。
+    // Windows 上的历史问题：tao 会在 WM_CREATE 里对 transparent 的窗口同步调用
+    // 早已废弃的 DwmEnableBlurBehindWindow，曾导致「钉桌面」时整个程序卡死。
+    // 该调用之所以会卡，是因为命令是同步的 —— 窗口创建跑在 webview IPC 回调的
+    // 嵌套上下文里（tauri-runtime-wry 的 send_user_message 有主线程内联快路径），
+    // 在那种上下文里做同步 DWM 往返容易死锁。
+    // 现在 show_sticky 已改为 async，窗口创建回到事件循环的顶层执行，风险大幅降低。
     //
-    // 反过来加 no_redirection_bitmap(true) 虽然能跳过它，但 WebView2 渲染不了
-    // 无重定向位图的窗口，结果是纯白窗口，一样不可用。
-    //
-    // 所以 Windows 上放弃窗口级透明（也就放弃了 Mica/Acrylic，它们必须窗口透明才可见），
-    // 改用「不透明无边框窗口 + CSS 自绘深色面板」，稳定且视觉一致。
-    // macOS 的 NSVisualEffect 透明是系统原生支持的，保持原样。
-    if cfg!(target_os = "windows") {
-        builder = builder.transparent(false);
-    } else {
-        builder = builder.transparent(true);
-    }
+    // 同时这里刻意**不再**叠加 Mica/Acrylic（set_effects）：它们会额外向 DWM
+    // 发起特效调用，是另一个卡死嫌疑点；而且 CSS 侧也已经去掉了 backdrop-filter。
+    // 透明效果完全交给窗口本身的透明 + CSS 的半透明面板。
+    builder = builder.decorations(false).transparent(true);
 
     // 无边框窗口默认落点可能压在菜单栏下，这里显式放到右上角安全区
     let mut placed = false;

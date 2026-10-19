@@ -512,16 +512,12 @@ body.sticky #root {
   background: transparent;
 }
 
-/* Windows：便签窗口是「不透明无边框」的（窗口级透明会卡死主线程，见 main.rs 说明），
-   所以底色必须由 CSS 铺满，否则窗口会露出系统白底。
-   面板用实色深灰，外圈略深一档，形成一圈自然的描边。 */
-body.sticky.win,
-body.sticky.win #root {
-  background: #171a21;
-}
-
+/* Windows：窗口和 macOS 一样是真透明的（上面的 body.sticky 已把底色设为 transparent），
+   这里只给面板上一层半透明深灰：透明生效时能透出桌面；
+   万一系统没真正给到透明（Win11 上 DwmEnableBlurBehindWindow 已失效），
+   这层叠在白底上仍是中深灰，白色文字照样看得清。 */
 body.sticky.win .stick-root {
-  background: #1f2430;
+  background: rgba(24, 28, 36, 0.75);
   border-radius: 10px;
   color: rgba(255, 255, 255, 0.94);
 }
