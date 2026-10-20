@@ -18,6 +18,24 @@ import { todayStr } from '../lib/date';
 
 const LS_THEME = 'planbook:sticky-theme';
 
+/** 大乐透：前区 5 个（1–35），后区 2 个（1–12），号码升序、两位补零 */
+function rollLotto(): { front: string[]; back: string[] } {
+  const pick = (max: number, count: number): number[] => {
+    const pool = Array.from({ length: max }, (_, i) => i + 1);
+    const out: number[] = [];
+    for (let i = 0; i < count; i++) {
+      const idx = Math.floor(Math.random() * pool.length);
+      out.push(pool.splice(idx, 1)[0]);
+    }
+    return out.sort((a, b) => a - b);
+  };
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return {
+    front: pick(35, 5).map(pad),
+    back: pick(12, 2).map(pad),
+  };
+}
+
 function uid(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -33,6 +51,7 @@ export default function StickyOverlay() {
     () => localStorage.getItem(LS_THEME) === 'light',
   );
   const inputRef = useRef<HTMLInputElement>(null);
+  const [lotto, setLotto] = useState(rollLotto);
 
   const refresh = useCallback(async () => {
     try {
@@ -221,6 +240,28 @@ export default function StickyOverlay() {
       className={`stick-root ${light ? 'light' : 'dark'}`}
       onMouseDown={onMouseDown}
     >
+      <div className="stick-lotto">
+        <span className="lotto-label">大乐透</span>
+        {lotto.front.map((n) => (
+          <span key={`f-${n}`} className="ball ball-front">
+            {n}
+          </span>
+        ))}
+        <span className="lotto-plus">+</span>
+        {lotto.back.map((n) => (
+          <span key={`b-${n}`} className="ball ball-back">
+            {n}
+          </span>
+        ))}
+        <button
+          className="stick-btn lotto-reroll"
+          title="换一注"
+          onClick={() => setLotto(rollLotto())}
+        >
+          ⟳
+        </button>
+      </div>
+
       <div className="stick-head">
         <span className="stick-title">今日任务</span>
         <span className="stick-count">

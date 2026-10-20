@@ -581,6 +581,51 @@ body.sticky.win .stick-btn.theme {
   cursor: pointer;
 }
 
+/* 大乐透推荐号码 */
+.stick-lotto {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 2px 6px;
+  font-size: 12px;
+}
+
+.stick-lotto .lotto-label {
+  opacity: 0.7;
+  margin-right: 2px;
+}
+
+.stick-lotto .ball {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: none;
+}
+
+.stick-lotto .ball-front {
+  background: #e0343c;
+}
+
+.stick-lotto .ball-back {
+  background: #2f6fd8;
+}
+
+.stick-lotto .lotto-plus {
+  opacity: 0.7;
+  font-weight: 700;
+}
+
+.stick-lotto .lotto-reroll {
+  font-size: 13px;
+  margin-left: 2px;
+}
+
 .stick-root input {
   cursor: text;
 }
