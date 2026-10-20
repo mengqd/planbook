@@ -6,6 +6,7 @@ import DayPanel from './components/DayPanel';
 import HolidayDialog from './components/HolidayDialog';
 import { usePlans } from './hooks/usePlans';
 import { initHolidays } from './lib/holidays';
+import { rollLotto } from './lib/lotto';
 
 export default function App() {
   const {
@@ -26,6 +27,7 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [lotto, setLotto] = useState(rollLotto);
   const [, setTick] = useState(0);
 
   // 启动时加载用户更新过的节假日数据，再渲染日历
@@ -67,6 +69,27 @@ export default function App() {
       <header className="topbar">
         <div className="brand">🗒 便签</div>
         <div className="actions">
+          <div className="lotto" title="大乐透推荐号码（随机，仅供娱乐）">
+            <span className="lotto-label">大乐透</span>
+            {lotto.front.map((n) => (
+              <span key={`f-${n}`} className="ball ball-front">
+                {n}
+              </span>
+            ))}
+            <span className="lotto-plus">+</span>
+            {lotto.back.map((n) => (
+              <span key={`b-${n}`} className="ball ball-back">
+                {n}
+              </span>
+            ))}
+            <button
+              className="lotto-reroll"
+              title="换一注"
+              onClick={() => setLotto(rollLotto())}
+            >
+              ⟳
+            </button>
+          </div>
           <button
             onClick={toggleSticky}
             title={
