@@ -14,9 +14,9 @@ interface Props {
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
 
 function dayInfo(date: string, today: string) {
-  if (date === today) return { label: date, tag: '今天' };
+  if (date === today) return { label: date, tag: '今天', past: false };
   const d = new Date(date + 'T00:00:00');
-  return { label: date, tag: `周${WEEKDAYS[d.getDay()]}` };
+  return { label: date, tag: `周${WEEKDAYS[d.getDay()]}`, past: date < today };
 }
 
 export default function UnfinishedDialog({
@@ -64,7 +64,7 @@ export default function UnfinishedDialog({
             return (
               <div key={date} className="todo-group">
                 <button
-                  className="todo-date"
+                  className={`todo-date ${info.past ? 'past' : 'future'}`}
                   title="在日历中查看这一天"
                   onClick={() => onJump(date)}
                 >

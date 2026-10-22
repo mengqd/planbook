@@ -622,6 +622,18 @@ body.sticky.win .stick-btn.theme {
   filter: brightness(0.95);
 }
 
+/* 历史（今天之前）：暖红 */
+.todo-date.past {
+  background: rgba(224, 52, 60, 0.12);
+  color: #e0343c;
+}
+
+/* 未来（今天之后）：蓝绿 */
+.todo-date.future {
+  background: rgba(47, 111, 216, 0.12);
+  color: #2f6fd8;
+}
+
 .todo-list {
   list-style: none;
   margin: 0;
