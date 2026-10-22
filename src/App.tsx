@@ -6,7 +6,7 @@ import DayPanel from './components/DayPanel';
 import HolidayDialog from './components/HolidayDialog';
 import { usePlans } from './hooks/usePlans';
 import { initHolidays } from './lib/holidays';
-import { rollLotto } from './lib/lotto';
+import UnfinishedDialog from './components/UnfinishedDialog';
 
 export default function App() {
   const {
@@ -14,6 +14,7 @@ export default function App() {
     setSelectedDate,
     selectedPlans,
     plansByDate,
+    plans,
     addPlan,
     updatePlan,
     removePlan,
@@ -27,7 +28,7 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pinned, setPinned] = useState(false);
-  const [lotto, setLotto] = useState(rollLotto);
+  const [todoOpen, setTodoOpen] = useState(false);
   const [, setTick] = useState(0);
 
   // 启动时加载用户更新过的节假日数据，再渲染日历
@@ -47,6 +48,8 @@ export default function App() {
       void ready.then(() => unlisten?.());
     };
   }, []);
+
+  const undoneCount = plans.filter((p) => !p.done).length;
 
   const toggleSticky = async () => {
     try {
@@ -69,27 +72,12 @@ export default function App() {
       <header className="topbar">
         <div className="brand">🗒 便签</div>
         <div className="actions">
-          <div className="lotto" title="大乐透推荐号码（随机，仅供娱乐）">
-            <span className="lotto-label">大乐透</span>
-            {lotto.front.map((n) => (
-              <span key={`f-${n}`} className="ball ball-front">
-                {n}
-              </span>
-            ))}
-            <span className="lotto-plus">+</span>
-            {lotto.back.map((n) => (
-              <span key={`b-${n}`} className="ball ball-back">
-                {n}
-              </span>
-            ))}
-            <button
-              className="lotto-reroll"
-              title="换一注"
-              onClick={() => setLotto(rollLotto())}
-            >
-              ⟳
-            </button>
-          </div>
+          <button
+            onClick={() => setTodoOpen(true)}
+            title="列出所有未完成的事项"
+          >
+            未完成{undoneCount > 0 ? `（${undoneCount}）` : ''}
+          </button>
           <button
             onClick={toggleSticky}
             title={
@@ -138,6 +126,17 @@ export default function App() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onUpdated={() => setTick((t) => t + 1)}
+      />
+
+      <UnfinishedDialog
+        open={todoOpen}
+        onClose={() => setTodoOpen(false)}
+        plans={plans}
+        onToggle={togglePlan}
+        onJump={(d) => {
+          setSelectedDate(d);
+          setTodoOpen(false);
+        }}
       />
     </div>
   );

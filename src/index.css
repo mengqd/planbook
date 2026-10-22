@@ -581,56 +581,98 @@ body.sticky.win .stick-btn.theme {
   cursor: pointer;
 }
 
-/* 大乐透推荐号码（主窗口顶栏，「钉桌面」按钮前） */
-.lotto {
+/* 未完成事项弹窗 */
+.todo-modal {
+  width: min(520px, 92vw);
+}
+
+.todo-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.todo-empty {
+  color: var(--text-soft);
+  text-align: center;
+  padding: 24px 0;
+}
+
+.todo-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.todo-date {
+  align-self: flex-start;
+  border: none;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.todo-date:hover {
+  filter: brightness(0.95);
+}
+
+.todo-date.overdue {
+  background: rgba(224, 52, 60, 0.12);
+  color: #e0343c;
+}
+
+.todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.todo-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 6px;
-  font-size: 12px;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
 }
 
-.lotto .lotto-label {
-  color: var(--text-soft);
-  margin-right: 2px;
+.todo-item:hover {
+  background: var(--panel);
 }
 
-.lotto .ball {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.lotto .ball-front {
-  background: #e0343c;
-}
-
-.lotto .ball-back {
-  background: #2f6fd8;
-}
-
-.lotto .lotto-plus {
-  color: var(--text-soft);
-  font-weight: 700;
-}
-
-.lotto .lotto-reroll {
-  border: none;
+.todo-check {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
   background: transparent;
-  color: var(--text-soft);
-  font-size: 14px;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 0;
 }
 
-.lotto .lotto-reroll:hover {
-  color: var(--brand);
+.todo-check:hover {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.todo-text {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.todo-text em {
+  font-style: normal;
+  color: var(--text-soft);
+  font-size: 12px;
 }
 
 .stick-root input {
