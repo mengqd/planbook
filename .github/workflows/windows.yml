@@ -26,7 +26,7 @@ jobs:
         # 只打 NSIS 安装包：MSI 依赖 .NET Framework 3.5，GitHub runner 默认没有
         run: npm run tauri build -- --bundles nsis
 
-      - name: 上传安装包
+      - name: 上传安装包（含使用说明）
         uses: actions/upload-artifact@v4
         with:
           name: planbook-windows
@@ -34,3 +34,4 @@ jobs:
           path: |
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/planbook.exe
+            使用说明.html

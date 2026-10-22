@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>便签 / Planbook 使用说明</title>
+<style>
+  :root {
+    --brand: #2f6fd8;
+    --brand-soft: #eaf1fc;
+    --ink: #1f2430;
+    --soft: #6b7280;
+    --line: #e6e8ee;
+    --bg: #f6f8fb;
+    --card: #ffffff;
+    --warn: #e0343c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.7;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.hero {
+    background: linear-gradient(135deg, #2f6fd8, #5b8def);
+    color: #fff;
+    border-radius: 16px;
+    padding: 36px 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 10px 30px rgba(47,111,216,.25);
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 28px; }
+  header.hero p { margin: 0; opacity: .92; font-size: 15px; }
+  .tag {
+    display: inline-block; background: rgba(255,255,255,.2);
+    padding: 3px 10px; border-radius: 999px; font-size: 12px; margin-bottom: 14px;
+  }
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-size: 19px; margin: 0 0 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2 .num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--brand-soft); color: var(--brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex: none;
+  }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: var(--ink); }
+  p, li { font-size: 14.5px; color: #2b3140; }
+  ul { padding-left: 20px; margin: 8px 0; }
+  .kbd {
+    background: #f0f2f6; border: 1px solid #d8dce4; border-bottom-width: 2px;
+    border-radius: 6px; padding: 1px 7px; font-size: 12.5px; font-family: ui-monospace, monospace;
+  }
+  .btnname {
+    background: var(--brand-soft); color: var(--brand);
+    border-radius: 6px; padding: 1px 8px; font-size: 13px; font-weight: 600;
+  }
+  .callout {
+    border-left: 4px solid var(--brand);
+    background: var(--brand-soft);
+    padding: 10px 14px; border-radius: 8px; margin: 12px 0;
+    font-size: 14px; color: #25406b;
+  }
+  .warn { border-left-color: var(--warn); background: #fdeeef; color: #8a2026; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .chip {
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px;
+    flex: 1; min-width: 200px; background: #fafbfd;
+  }
+  .chip b { color: var(--brand); }
+  code { background: #f0f2f6; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+  footer { text-align: center; color: var(--soft); font-size: 13px; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="tag">桌面效率小工具</div>
+    <h1>便签 / Planbook 使用说明</h1>
+    <p>一个轻量的桌面待办应用：日历规划 + 透明置顶便签 + 未完成清单，支持 macOS 与 Windows。</p>
+  </header>
+
+  <section>
+    <h2><span class="num">1</span>主界面：日历 + 当日计划</h2>
+    <p>打开应用后默认看到两大块：</p>
+    <ul>
+      <li><b>左侧日历</b>：按月份查看，日期上的小圆点表示当天有安排；点击任意日期即可切换到那一天。</li>
+      <li><b>右侧当日计划</b>：显示选中日期的所有待办事项，可在这里添加、完成、删除。</li>
+    </ul>
+    <div class="callout">
+      今日安排会<b>自动同步</b>到右侧面板；切换日期不会丢失任何数据，所有计划都按日期分别保存。
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>添加 / 完成 / 删除计划</h2>
+    <ul>
+      <li><b>添加</b>：在右侧输入框填写内容，按 <span class="kbd">Enter</span> 或点“添加”按钮即可；可顺手带一个简短备注（用 <code>内容（备注）</code> 的写法会自动拆分，或在输入框下方填写备注）。</li>
+      <li><b>完成</b>：点击事项前的圆圈，勾选即视为已完成（会自动从“未完成”清单中消失）。</li>
+      <li><b>删除</b>：悬停到某条事项，点右侧的 <span class="kbd">✕</span> 删除。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>顶栏按钮一览</h2>
+    <div class="row">
+      <div class="chip">
+        <b>未完成</b><br />
+        按日期列出所有还没做完的事项。日期标签用颜色区分：<span style="color:var(--warn);font-weight:600">红色为历史</span>、<span style="color:var(--brand);font-weight:600">蓝色为未来</span>。点日期可跳到日历对应那一天，点圆圈可直接标记完成。
+      </div>
+      <div class="chip">
+        <b>钉桌面</b><br />
+        把“今日任务”变成一个透明、始终置顶的小窗挂在桌面上（详见第 4 节）。再次点击可关闭。
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <div class="chip">
+        <b>节假日</b><br />
+        联网更新当年及往年的法定节假日与调休安排，日历会自动标出放假 / 补班。
+      </div>
+      <div class="chip">
+        <b>模板 / 导入 / 导出</b><br />
+        下载示例模板、从文件导入计划、或把当前所有计划导出为 JSON 备份。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>桌面便签窗口（钉桌面）</h2>
+    <p>点顶栏 <span class="btnname">钉桌面</span> 后，会弹出一个<b>透明、始终在最上层</b>的小窗口，贴在桌面上随时可见、不打扰你操作其他软件。</p>
+    <h3>怎么用</h3>
+    <ul>
+      <li><b>移动</b>：在窗口空白处按住拖动即可。</li>
+      <li><b>改变大小</b>：把鼠标移到窗口右下角 / 右边 / 下边边缘，出现可拉伸光标后拖动。</li>
+      <li><b>添加任务</b>：在底部输入框填写，按 <span class="kbd">Enter</span> 保存。</li>
+      <li><b>完成 / 删除</b>：和主界面一样，点圆圈勾选、点 <span class="kbd">✕</span> 删除。</li>
+      <li><b>关闭便签</b>：点窗口右上角 <span class="kbd">✕</span>，或按 <span class="kbd">Esc</span> 键；也可以在顶栏再次点“关闭便签”。</li>
+    </ul>
+    <div class="callout">
+      便签与主窗口<b>实时互相同步</b>：在便签里勾掉的任务，主界面立刻更新；在主界面改的计划，便签也会自动刷新（每 3 秒同步一次）。两个窗口共享同一份数据，不会冲突。
+    </div>
+    <div class="callout warn">
+      <b>Windows 提示</b>：在 Windows 上，便签为透明窗口；极少数情况下若系统未提供真正的窗口透明，会自动退化为“半透明深色面板”，文字依然清晰可读。按钮文字配色已针对该场景优化。
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>节假日与调休</h2>
+    <p>点顶栏 <span class="btnname">节假日</span>：</p>
+    <ul>
+      <li>方式一（推荐）：填入年份（如 2027），点“拉取该年数据”，自动联网获取国务院放假安排。</li>
+      <li>方式二（联网失败时用）：手动打开数据源地址，复制返回的 JSON，粘贴到文本框后“导入粘贴内容”。</li>
+    </ul>
+    <p>更新后，日历上会标注放假（休）与补班（班），方便你排期。</p>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>导入 / 导出 / 备份</h2>
+    <ul>
+      <li><span class="btnname">模板</span>：下载一个示例 JSON 到本地，照着格式填好你的计划后，用“导入”读回。</li>
+      <li><span class="btnname">导入</span>：选择一个本地 JSON 文件，替换 / 载入其中的计划。</li>
+      <li><span class="btnname">导出</span>：把所有计划导出为一个 JSON 文件，便于备份或换设备迁移。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>数据与文件位置</h2>
+    <p>所有数据保存在本机，不会上传到任何服务器：</p>
+    <ul>
+      <li><b>macOS</b>：<code>~/Library/Application Support/com.planbook.planner/</code></li>
+      <li><b>Windows</b>：<code>C:\Users\你的用户名\AppData\Roaming\com.planbook.planner\</code></li>
+    </ul>
+    <p>该目录下主要有：</p>
+    <ul>
+      <li><b>计划数据</b>：<code>plans.json</code></li>
+      <li><b>节假日数据</b>：<code>holidays.json</code></li>
+    </ul>
+    <p>重装应用不会自动删除这些文件；如需彻底清空，手动删除上述目录即可。</p>
+  </section>
+
+  <section>
+    <h2><span class="num">8</span>小结与建议</h2>
+    <ul>
+      <li>日常规划：用左侧日历 + 右侧面板安排每天的事。</li>
+      <li>碎片执行：工作学习时把“今日任务”钉到桌面，随时看、随手勾。</li>
+      <li>周末复盘：点“未完成”，集中处理历史遗留，再用颜色一眼分清轻重缓急。</li>
+      <li>换机 / 备份：定期“导出”，需要时用“导入”恢复。</li>
+    </ul>
+  </section>
+
+  <footer>便签 / Planbook · 本地优先，数据不出本机 · 使用说明</footer>
+</div>
+</body>
+</html>
