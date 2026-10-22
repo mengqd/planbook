@@ -622,11 +622,6 @@ body.sticky.win .stick-btn.theme {
   filter: brightness(0.95);
 }
 
-.todo-date.overdue {
-  background: rgba(224, 52, 60, 0.12);
-  color: #e0343c;
-}
-
 .todo-list {
   list-style: none;
   margin: 0;

@@ -14,16 +14,9 @@ interface Props {
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
 
 function dayInfo(date: string, today: string) {
+  if (date === today) return { label: date, tag: '今天' };
   const d = new Date(date + 'T00:00:00');
-  const weekday = `周${WEEKDAYS[d.getDay()]}`;
-  if (date === today) return { label: date, tag: '今天', overdue: false };
-  if (date < today) {
-    const diff = Math.round(
-      (new Date(today + 'T00:00:00').getTime() - d.getTime()) / 86400000,
-    );
-    return { label: date, tag: `已逾期 ${diff} 天`, overdue: true };
-  }
-  return { label: date, tag: weekday, overdue: false };
+  return { label: date, tag: `周${WEEKDAYS[d.getDay()]}` };
 }
 
 export default function UnfinishedDialog({
@@ -71,7 +64,7 @@ export default function UnfinishedDialog({
             return (
               <div key={date} className="todo-group">
                 <button
-                  className={`todo-date ${info.overdue ? 'overdue' : ''}`}
+                  className="todo-date"
                   title="在日历中查看这一天"
                   onClick={() => onJump(date)}
                 >
