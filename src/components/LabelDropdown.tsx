@@ -13,8 +13,8 @@ export default function LabelDropdown({ onChange, anchorDate }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setPresets(loadPresets());
-  }, []);
+    if (open) setPresets(loadPresets());
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -22,7 +22,12 @@ export default function LabelDropdown({ onChange, anchorDate }: Props) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
+    const onChanged = () => setPresets(loadPresets());
+    window.addEventListener('duePresetsChanged', onChanged);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      window.removeEventListener('duePresetsChanged', onChanged);
+    };
   }, [open]);
 
   const apply = (p: DuePreset) => {

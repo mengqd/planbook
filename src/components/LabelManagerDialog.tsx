@@ -39,6 +39,7 @@ export default function LabelManagerDialog({ open, onClose }: Props) {
     }
     setPresets(next);
     savePresets(next);
+    window.dispatchEvent(new Event('duePresetsChanged'));
     setEditing(null);
   };
 
@@ -46,6 +47,7 @@ export default function LabelManagerDialog({ open, onClose }: Props) {
     const next = presets.filter((p) => p.id !== id);
     setPresets(next);
     savePresets(next);
+    window.dispatchEvent(new Event('duePresetsChanged'));
   };
 
   const sub = (p: DuePreset) =>
