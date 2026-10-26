@@ -7,6 +7,7 @@ import HolidayDialog from './components/HolidayDialog';
 import { usePlans } from './hooks/usePlans';
 import { initHolidays } from './lib/holidays';
 import UnfinishedDialog from './components/UnfinishedDialog';
+import LabelManagerDialog from './components/LabelManagerDialog';
 
 export default function App() {
   const {
@@ -29,6 +30,7 @@ export default function App() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [todoOpen, setTodoOpen] = useState(false);
+  const [labelOpen, setLabelOpen] = useState(false);
   const [, setTick] = useState(0);
 
   // 启动时加载用户更新过的节假日数据，再渲染日历
@@ -77,6 +79,12 @@ export default function App() {
             title="列出所有未完成的事项"
           >
             未完成{undoneCount > 0 ? `（${undoneCount}）` : ''}
+          </button>
+          <button
+            onClick={() => setLabelOpen(true)}
+            title="管理“下班前”等快捷时间标签"
+          >
+            时间标签
           </button>
           <button
             onClick={toggleSticky}
@@ -137,6 +145,11 @@ export default function App() {
           setSelectedDate(d);
           setTodoOpen(false);
         }}
+      />
+
+      <LabelManagerDialog
+        open={labelOpen}
+        onClose={() => setLabelOpen(false)}
       />
     </div>
   );
