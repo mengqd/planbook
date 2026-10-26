@@ -858,15 +858,15 @@ body.sticky.win .stick-btn.theme {
   position: relative;
 }
 .dt-trigger {
-  width: 190px;
-  height: 32px;
+  width: 150px;
+  height: 30px;
   padding: 4px 10px;
   text-align: left;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel);
   color: var(--text);
-  font-size: 13px;
+  font-size: 12.5px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -878,13 +878,13 @@ body.sticky.win .stick-btn.theme {
   position: relative;
 }
 .label-dd-trigger {
-  height: 32px;
+  height: 30px;
   padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel);
   color: var(--text);
-  font-size: 13px;
+  font-size: 12.5px;
   cursor: pointer;
 }
 .label-dd-trigger:hover {
@@ -934,7 +934,7 @@ body.sticky.win .stick-btn.theme {
   font-size: 11px;
   color: var(--text-soft);
 }
-.dt-trigger.empty {
+.dt-trigger.dt-empty {
   color: var(--text-soft);
 }
 .dt-pop {

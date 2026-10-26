@@ -94,7 +94,7 @@ export default function DateTimePicker({
     <div className="dt-picker" ref={ref}>
       <button
         type="button"
-        className={`dt-trigger ${value ? '' : 'empty'}`}
+        className={`dt-trigger ${value ? '' : 'dt-empty'}`}
         onClick={() => (open ? setOpen(false) : openPicker())}
       >
         {label || <span className="dt-ph">{placeholder}</span>}
