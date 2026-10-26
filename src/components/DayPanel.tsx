@@ -25,7 +25,6 @@ export default function DayPanel({
 }: Props) {
   const [text, setText] = useState('');
   const [due, setDue] = useState('');
-  const [showDue, setShowDue] = useState(false);
   const [copied, setCopied] = useState(false);
   // 复制选择：选中的计划才会出现在“复制选中”的导出文本里
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -103,7 +102,6 @@ export default function DayPanel({
     onAdd(t, undefined, fromLocalInput(due));
     setText('');
     setDue('');
-    setShowDue(false);
   };
 
   return (
@@ -153,30 +151,21 @@ export default function DayPanel({
             if (e.key === 'Enter') handleAdd();
           }}
         />
-        <button
-          className={`due-toggle ${showDue ? 'on' : ''}`}
-          title="设置截止时间（年/月/日/时/分）"
-          onClick={() => setShowDue((v) => !v)}
-        >
-          ⏰
-        </button>
         <button onClick={handleAdd}>添加</button>
       </div>
-      {showDue && (
-        <div className="add-due">
-          <span>截止时间</span>
-          <input
-            type="datetime-local"
-            value={due}
-            onChange={(e) => setDue(e.target.value)}
-          />
-          {due && (
-            <button className="due-clear" onClick={() => setDue('')}>
-              清除
-            </button>
-          )}
-        </div>
-      )}
+      <div className="add-due">
+        <span>截止时间</span>
+        <input
+          type="datetime-local"
+          value={due}
+          onChange={(e) => setDue(e.target.value)}
+        />
+        {due && (
+          <button className="due-clear" onClick={() => setDue('')}>
+            清除
+          </button>
+        )}
+      </div>
 
       <ul className="plan-list">
         {plans.length === 0 && (

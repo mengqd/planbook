@@ -710,17 +710,6 @@ body.sticky.win .stick-btn.theme {
 }
 
 /* 添加行的截止时间 */
-.due-toggle {
-  padding: 10px 14px !important;
-  background: var(--panel) !important;
-  border: 1px solid var(--border) !important;
-  color: var(--text-soft) !important;
-}
-.due-toggle.on {
-  border-color: var(--brand) !important;
-  color: var(--brand) !important;
-  background: var(--brand-soft) !important;
-}
 .add-due {
   display: flex;
   align-items: center;
