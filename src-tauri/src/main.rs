@@ -16,6 +16,8 @@ struct Plan {
     done: bool,
     created_at: String,
     updated_at: String,
+    completed_at: Option<String>,
+    due_at: Option<String>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
