@@ -156,7 +156,7 @@ export default function DayPanel({
       </div>
       <div className="add-due">
         <span>截止时间</span>
-        <DateTimePicker value={due} onChange={setDue} placeholder="选日期与时间" />
+        <DateTimePicker value={due} onChange={setDue} placeholder="设置截止时间" />
       </div>
 
       <ul className="plan-list">

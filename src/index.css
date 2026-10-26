@@ -760,15 +760,15 @@ body.sticky.win .stick-btn.theme {
   position: relative;
 }
 .dt-trigger {
-  min-width: 240px;
-  height: 40px;
-  padding: 8px 12px;
+  min-width: 180px;
+  height: 32px;
+  padding: 4px 10px;
   text-align: left;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--panel);
   color: var(--text);
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
 }
 .dt-trigger.empty {
@@ -883,6 +883,126 @@ body.sticky.win .stick-btn.theme {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+}
+
+/* 弹层内的 tab 切换 */
+.dt-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.dt-tabs button {
+  flex: 1;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text-soft);
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.dt-tabs button.on {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--brand-soft);
+  font-weight: 600;
+}
+
+/* 快捷标签 */
+.dt-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dt-tags-empty {
+  color: var(--text-soft);
+  font-size: 12px;
+}
+.dt-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dt-tag {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.dt-tag-apply {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px 8px;
+  text-align: left;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.dt-tag-apply:hover {
+  background: var(--brand-soft);
+}
+.dt-tag-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-soft);
+}
+.dt-tag-del {
+  border: none;
+  background: transparent;
+  color: var(--text-soft);
+  cursor: pointer;
+  padding: 0 6px;
+  font-size: 12px;
+}
+.dt-tag-del:hover {
+  color: #e0343c;
+}
+.dt-manage {
+  align-self: flex-start;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--brand);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.dt-tag-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.dt-tag-form input[type="text"],
+.dt-tag-form input[type="time"] {
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--panel);
+  color: var(--text);
+}
+.dt-days {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.dt-days input {
+  width: 64px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.dt-tag-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .stick-root input {
