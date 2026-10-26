@@ -14,7 +14,7 @@ import {
 const RESIZE_MARGIN = 10;
 const MIN_W = 200;
 const MIN_H = 90;
-import { todayStr } from '../lib/date';
+import { todayStr, formatTime, dueStatus } from '../lib/date';
 
 const LS_THEME = 'planbook:sticky-theme';
 
@@ -252,8 +252,16 @@ export default function StickyOverlay() {
               {p.done ? '✓' : ''}
             </button>
             <span className="stick-text">
-              {p.title}
-              {p.note ? `（${p.note}）` : ''}
+              <span className="stick-title-text">{p.title}</span>
+              {p.note ? <span className="stick-note">（{p.note}）</span> : null}
+              {p.dueAt ? (
+                <span
+                  className={`stick-due lv-${dueStatus(p.dueAt).level}`}
+                  title="截止时间"
+                >
+                  ⏰ {formatTime(p.dueAt)} · {dueStatus(p.dueAt).text}
+                </span>
+              ) : null}
             </span>
             <button
               className="stick-btn"
