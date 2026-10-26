@@ -644,6 +644,8 @@ body.sticky.win .stick-btn.theme {
 }
 
 .todo-item {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -651,8 +653,29 @@ body.sticky.win .stick-btn.theme {
   border-radius: 8px;
 }
 
+/* 紧急度底色条：从左侧铺开，宽度由剩余时间决定（越近越宽） */
+.todo-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  border-radius: 8px;
+  opacity: 0.18;
+}
+.todo-bar.lv-low { background: #2f6fd8; }
+.todo-bar.lv-mid { background: #e08a1e; }
+.todo-bar.lv-high { background: #e0561e; }
+.todo-bar.lv-over { background: #e0343c; opacity: 0.26; }
+
+/* 文字/按钮压在底色条之上 */
+.todo-item > *:not(.todo-bar) {
+  position: relative;
+  z-index: 1;
+}
+
 .todo-item:hover {
-  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 
 .todo-check {
@@ -694,14 +717,7 @@ body.sticky.win .stick-btn.theme {
 .lv-high { color: #e0561e; }
 .lv-over { color: #e0343c; }
 
-/* 未完成项：按紧急度加左边框，越紧急越深 */
-.todo-item.lv-low { border-left: 3px solid rgba(47,111,216,.5); }
-.todo-item.lv-mid { border-left: 3px solid rgba(224,138,30,.7); }
-.todo-item.lv-high { border-left: 3px solid rgba(224,86,30,.9); }
-.todo-item.lv-over {
-  border-left: 3px solid #e0343c;
-  background: rgba(224,52,60,.06);
-}
+/* 未完成项：超时项文字加粗强调 */
 .todo-item.lv-over .todo-text { font-weight: 600; }
 
 .todo-due {
@@ -713,18 +729,25 @@ body.sticky.win .stick-btn.theme {
 .add-due {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 14px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-soft);
 }
 .add-due input[type="datetime-local"] {
-  padding: 8px 10px;
+  min-width: 260px;
+  flex: 1;
+  height: 40px;
+  padding: 8px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 10px;
+  font-size: 15px;
   color: var(--text);
   background: var(--panel);
+}
+.add-due input[type="datetime-local"]:focus {
+  border-color: var(--brand);
 }
 .due-clear {
   border: none;
@@ -738,16 +761,19 @@ body.sticky.win .stick-btn.theme {
 .edit-due {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-soft);
 }
 .edit-due input[type="datetime-local"] {
-  padding: 6px 8px;
+  min-width: 240px;
+  height: 38px;
+  padding: 7px 10px;
   border: 1px solid var(--brand);
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text);
   background: var(--panel);
 }

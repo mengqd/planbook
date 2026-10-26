@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Plan } from '../lib/types';
-import { todayStr, dueStatus, formatTime } from '../lib/date';
+import { todayStr, dueStatus, dueBarWidth, formatTime } from '../lib/date';
 
 interface Props {
   open: boolean;
@@ -80,11 +80,18 @@ export default function UnfinishedDialog({
                 <ul className="todo-list">
                   {items.map((p) => {
                     const st = dueStatus(p.dueAt);
+                    const w = dueBarWidth(p.dueAt);
                     return (
                       <li
                         key={p.id}
                         className={`todo-item lv-${st.level}`}
                       >
+                        {st.level !== 'none' && (
+                          <span
+                            className={`todo-bar lv-${st.level}`}
+                            style={{ width: `${w}%` }}
+                          />
+                        )}
                         <button
                           className="todo-check"
                           title="标记完成"

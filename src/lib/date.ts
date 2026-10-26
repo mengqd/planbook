@@ -121,3 +121,18 @@ export function dueStatus(dueAt?: string | null, now = Date.now()): DueStatus {
   if (diff <= 3 * 86400_000) return { level: 'low', weight: 1, text: `剩 ${humanDuration(diff)}` };
   return { level: 'none', weight: 0, text: '' };
 }
+
+/**
+ * 紧急度底色条宽度（百分比）：剩余时间越长越窄，越接近截止（含已超时）越宽。
+ * 以 7 天为满量程，超时即为 100%。
+ */
+export function dueBarWidth(dueAt?: string | null, now = Date.now()): number {
+  if (!dueAt) return 0;
+  const t = new Date(dueAt).getTime();
+  if (Number.isNaN(t)) return 0;
+  const diff = t - now;
+  if (diff <= 0) return 100;
+  const HORIZON = 7 * 86400_000;
+  const pct = 100 - (diff / HORIZON) * 100;
+  return Math.max(6, Math.min(100, pct));
+}
