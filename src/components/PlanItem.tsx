@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { confirm } from '@tauri-apps/plugin-dialog';
 import type { Plan } from '../lib/types';
 import { formatTime, dueStatus } from '../lib/date';
@@ -26,6 +26,19 @@ export default function PlanItem({
   const [title, setTitle] = useState(plan.title);
   const [note, setNote] = useState(plan.note ?? '');
   const [due, setDue] = useState<string | null>(plan.dueAt ?? null);
+  const editRef = useRef<HTMLDivElement>(null);
+
+  // 点击编辑框以外的区域才提交并退出编辑，避免点日期/标签按钮时因焦点变化误关闭
+  useEffect(() => {
+    if (!editing) return;
+    const onDoc = (e: MouseEvent) => {
+      if (editRef.current && !editRef.current.contains(e.target as Node)) {
+        commitRef.current();
+      }
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [editing]);
 
   const commit = () => {
     setEditing(false);
@@ -47,6 +60,9 @@ export default function PlanItem({
     setDue(plan.dueAt ?? null);
     setEditing(false);
   };
+
+  const commitRef = useRef(commit);
+  commitRef.current = commit;
 
   const handleRemove = async () => {
     let ok = false;
@@ -76,13 +92,7 @@ export default function PlanItem({
       />
       {editing ? (
         // 整块统一判断失焦：在标题和备注之间切换焦点不会退出编辑
-        <div
-          className="edit-box"
-          onBlur={(e) => {
-            if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
-            commit();
-          }}
-        >
+        <div className="edit-box" ref={editRef}>
           <input
             className="edit-title"
             autoFocus
