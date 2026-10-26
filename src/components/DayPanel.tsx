@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Plan } from '../lib/types';
 import { getDayInfo } from '../lib/holidays';
-import { parseDate, fromLocalInput } from '../lib/date';
+import { parseDate } from '../lib/date';
 import PlanItem from './PlanItem';
+import DateTimePicker from './DateTimePicker';
 
 interface Props {
   date: string;
@@ -24,7 +25,7 @@ export default function DayPanel({
   onRemove,
 }: Props) {
   const [text, setText] = useState('');
-  const [due, setDue] = useState('');
+  const [due, setDue] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   // 复制选择：选中的计划才会出现在“复制选中”的导出文本里
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -99,9 +100,9 @@ export default function DayPanel({
   const handleAdd = () => {
     const t = text.trim();
     if (!t) return;
-    onAdd(t, undefined, fromLocalInput(due));
+    onAdd(t, undefined, due);
     setText('');
-    setDue('');
+    setDue(null);
   };
 
   return (
@@ -155,16 +156,7 @@ export default function DayPanel({
       </div>
       <div className="add-due">
         <span>截止时间</span>
-        <input
-          type="datetime-local"
-          value={due}
-          onChange={(e) => setDue(e.target.value)}
-        />
-        {due && (
-          <button className="due-clear" onClick={() => setDue('')}>
-            清除
-          </button>
-        )}
+        <DateTimePicker value={due} onChange={setDue} placeholder="选日期与时间" />
       </div>
 
       <ul className="plan-list">

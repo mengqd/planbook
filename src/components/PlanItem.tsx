@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { confirm } from '@tauri-apps/plugin-dialog';
 import type { Plan } from '../lib/types';
-import { formatTime, dueStatus, toLocalInput, fromLocalInput } from '../lib/date';
+import { formatTime, dueStatus } from '../lib/date';
+import DateTimePicker from './DateTimePicker';
 
 interface Props {
   plan: Plan;
@@ -23,7 +24,7 @@ export default function PlanItem({
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(plan.title);
   const [note, setNote] = useState(plan.note ?? '');
-  const [due, setDue] = useState(toLocalInput(plan.dueAt));
+  const [due, setDue] = useState<string | null>(plan.dueAt ?? null);
 
   const commit = () => {
     setEditing(false);
@@ -35,14 +36,14 @@ export default function PlanItem({
     onUpdate(plan.id, {
       title: t,
       note: note.trim() || undefined,
-      dueAt: fromLocalInput(due),
+      dueAt: due,
     });
   };
 
   const cancel = () => {
     setTitle(plan.title);
     setNote(plan.note ?? '');
-    setDue(toLocalInput(plan.dueAt));
+    setDue(plan.dueAt ?? null);
     setEditing(false);
   };
 
@@ -104,24 +105,7 @@ export default function PlanItem({
           />
           <div className="edit-due">
             <span>截止时间</span>
-            <input
-              type="datetime-local"
-              value={due}
-              onChange={(e) => setDue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') commit();
-                if (e.key === 'Escape') cancel();
-              }}
-            />
-            {due && (
-              <button
-                className="due-clear"
-                onClick={() => setDue('')}
-                title="清除截止时间"
-              >
-                清除
-              </button>
-            )}
+            <DateTimePicker value={due} onChange={setDue} placeholder="选日期与时间" />
           </div>
         </div>
       ) : (
