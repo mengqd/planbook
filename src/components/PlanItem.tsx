@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { confirm } from '@tauri-apps/plugin-dialog';
 import type { Plan } from '../lib/types';
-import { formatTime } from '../lib/date';
+import { formatTime, dueStatus, toLocalInput, fromLocalInput } from '../lib/date';
 
 interface Props {
   plan: Plan;
@@ -23,6 +23,7 @@ export default function PlanItem({
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(plan.title);
   const [note, setNote] = useState(plan.note ?? '');
+  const [due, setDue] = useState(toLocalInput(plan.dueAt));
 
   const commit = () => {
     setEditing(false);
@@ -31,12 +32,17 @@ export default function PlanItem({
       setTitle(plan.title);
       return;
     }
-    onUpdate(plan.id, { title: t, note: note.trim() || undefined });
+    onUpdate(plan.id, {
+      title: t,
+      note: note.trim() || undefined,
+      dueAt: fromLocalInput(due),
+    });
   };
 
   const cancel = () => {
     setTitle(plan.title);
     setNote(plan.note ?? '');
+    setDue(toLocalInput(plan.dueAt));
     setEditing(false);
   };
 
@@ -96,6 +102,27 @@ export default function PlanItem({
               if (e.key === 'Escape') cancel();
             }}
           />
+          <div className="edit-due">
+            <span>截止时间</span>
+            <input
+              type="datetime-local"
+              value={due}
+              onChange={(e) => setDue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commit();
+                if (e.key === 'Escape') cancel();
+              }}
+            />
+            {due && (
+              <button
+                className="due-clear"
+                onClick={() => setDue('')}
+                title="清除截止时间"
+              >
+                清除
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div
@@ -109,6 +136,11 @@ export default function PlanItem({
             添加于 {formatTime(plan.createdAt)}
             {plan.done && plan.completedAt && (
               <span> · 完成于 {formatTime(plan.completedAt)}</span>
+            )}
+            {!plan.done && plan.dueAt && (
+              <span className={`due-badge lv-${dueStatus(plan.dueAt).level}`}>
+                · 截止 {formatTime(plan.dueAt)}（{dueStatus(plan.dueAt).text}）
+              </span>
             )}
           </div>
         </div>

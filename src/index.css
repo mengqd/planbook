@@ -682,6 +682,87 @@ body.sticky.win .stick-btn.theme {
   font-size: 12px;
 }
 
+/* 截止时间紧急度配色（历史/未来通用） */
+.due-badge,
+.todo-due {
+  font-size: 11px;
+  font-weight: 600;
+}
+.lv-none { color: var(--text-soft); }
+.lv-low { color: #2f6fd8; }
+.lv-mid { color: #e08a1e; }
+.lv-high { color: #e0561e; }
+.lv-over { color: #e0343c; }
+
+/* 未完成项：按紧急度加左边框，越紧急越深 */
+.todo-item.lv-low { border-left: 3px solid rgba(47,111,216,.5); }
+.todo-item.lv-mid { border-left: 3px solid rgba(224,138,30,.7); }
+.todo-item.lv-high { border-left: 3px solid rgba(224,86,30,.9); }
+.todo-item.lv-over {
+  border-left: 3px solid #e0343c;
+  background: rgba(224,52,60,.06);
+}
+.todo-item.lv-over .todo-text { font-weight: 600; }
+
+.todo-due {
+  display: block;
+  margin-top: 2px;
+}
+
+/* 添加行的截止时间 */
+.due-toggle {
+  padding: 10px 14px !important;
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-soft) !important;
+}
+.due-toggle.on {
+  border-color: var(--brand) !important;
+  color: var(--brand) !important;
+  background: var(--brand-soft) !important;
+}
+.add-due {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.add-due input[type="datetime-local"] {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--panel);
+}
+.due-clear {
+  border: none;
+  background: transparent;
+  color: var(--brand);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* 编辑框里的截止时间 */
+.edit-due {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.edit-due input[type="datetime-local"] {
+  padding: 6px 8px;
+  border: 1px solid var(--brand);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--panel);
+}
+
 .stick-root input {
   cursor: text;
 }

@@ -99,7 +99,7 @@ export function usePlans() {
   );
 
   const addPlan = useCallback(
-    (title: string, note?: string) => {
+    (title: string, note?: string, dueAt?: string | null) => {
       const now = new Date().toISOString();
       const plan: Plan = {
         id: uid(),
@@ -109,6 +109,7 @@ export function usePlans() {
         done: false,
         createdAt: now,
         updatedAt: now,
+        dueAt: dueAt ?? null,
       };
       setPlans((prev) => [...prev, plan]);
     },

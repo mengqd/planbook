@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Plan } from '../lib/types';
 import { getDayInfo } from '../lib/holidays';
-import { parseDate } from '../lib/date';
+import { parseDate, fromLocalInput } from '../lib/date';
 import PlanItem from './PlanItem';
 
 interface Props {
   date: string;
   plans: Plan[];
-  onAdd: (title: string, note?: string) => void;
+  onAdd: (title: string, note?: string, dueAt?: string | null) => void;
   onToggle: (id: string) => void;
   onUpdate: (id: string, patch: Partial<Plan>) => void;
   onRemove: (id: string) => void;
@@ -24,6 +24,8 @@ export default function DayPanel({
   onRemove,
 }: Props) {
   const [text, setText] = useState('');
+  const [due, setDue] = useState('');
+  const [showDue, setShowDue] = useState(false);
   const [copied, setCopied] = useState(false);
   // 复制选择：选中的计划才会出现在“复制选中”的导出文本里
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -98,8 +100,10 @@ export default function DayPanel({
   const handleAdd = () => {
     const t = text.trim();
     if (!t) return;
-    onAdd(t);
+    onAdd(t, undefined, fromLocalInput(due));
     setText('');
+    setDue('');
+    setShowDue(false);
   };
 
   return (
@@ -149,8 +153,30 @@ export default function DayPanel({
             if (e.key === 'Enter') handleAdd();
           }}
         />
+        <button
+          className={`due-toggle ${showDue ? 'on' : ''}`}
+          title="设置截止时间（年/月/日/时/分）"
+          onClick={() => setShowDue((v) => !v)}
+        >
+          ⏰
+        </button>
         <button onClick={handleAdd}>添加</button>
       </div>
+      {showDue && (
+        <div className="add-due">
+          <span>截止时间</span>
+          <input
+            type="datetime-local"
+            value={due}
+            onChange={(e) => setDue(e.target.value)}
+          />
+          {due && (
+            <button className="due-clear" onClick={() => setDue('')}>
+              清除
+            </button>
+          )}
+        </div>
+      )}
 
       <ul className="plan-list">
         {plans.length === 0 && (

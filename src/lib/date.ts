@@ -69,3 +69,55 @@ export function formatTime(iso?: string | null): string {
   const mm = String(d.getMinutes()).padStart(2, '0');
   return `${hh}:${mm}`;
 }
+
+/** 把 ISO 转成 datetime-local 输入框需要的 YYYY-MM-DDTHH:MM（本地时区，无效返回空串） */
+export function toLocalInput(iso?: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(
+    d.getHours(),
+  )}:${p(d.getMinutes())}`;
+}
+
+/** 把 datetime-local 的 YYYY-MM-DDTHH:MM（按本地时区理解）转成 ISO；空串返回 null */
+export function fromLocalInput(v: string): string | null {
+  if (!v) return null;
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
+export type DueLevel = 'none' | 'low' | 'mid' | 'high' | 'over';
+
+function humanDuration(ms: number): string {
+  const m = Math.max(0, Math.floor(ms / 60000));
+  if (m < 60) return `${m}分`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}时`;
+  const d = Math.floor(h / 24);
+  return `${d}天`;
+}
+
+export interface DueStatus {
+  level: DueLevel;
+  /** 排序权重：越大越紧急（over > high > mid > low > none） */
+  weight: number;
+  text: string;
+}
+
+/** 根据截止时间计算紧急度：离截止越近（含已超时）越重 */
+export function dueStatus(dueAt?: string | null, now = Date.now()): DueStatus {
+  if (!dueAt) return { level: 'none', weight: 0, text: '' };
+  const t = new Date(dueAt).getTime();
+  if (Number.isNaN(t)) return { level: 'none', weight: 0, text: '' };
+  const diff = t - now;
+  if (diff < 0) {
+    return { level: 'over', weight: 4, text: `已超时 ${humanDuration(-diff)}` };
+  }
+  if (diff <= 3 * 3600_000) return { level: 'high', weight: 3, text: `剩 ${humanDuration(diff)}` };
+  if (diff <= 24 * 3600_000) return { level: 'mid', weight: 2, text: `剩 ${humanDuration(diff)}` };
+  if (diff <= 3 * 86400_000) return { level: 'low', weight: 1, text: `剩 ${humanDuration(diff)}` };
+  return { level: 'none', weight: 0, text: '' };
+}

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Plan } from '../lib/types';
-import { todayStr } from '../lib/date';
+import { todayStr, dueStatus, formatTime } from '../lib/date';
 
 interface Props {
   open: boolean;
@@ -61,6 +61,13 @@ export default function UnfinishedDialog({
 
           {groups.map(([date, ps]) => {
             const info = dayInfo(date, today);
+            // 同一天内：紧急度高的（离截止越近/已超时）排前面
+            const items = [...ps].sort((a, b) => {
+              const wa = dueStatus(a.dueAt).weight;
+              const wb = dueStatus(b.dueAt).weight;
+              if (wb !== wa) return wb - wa;
+              return (a.dueAt ?? '~').localeCompare(b.dueAt ?? '~');
+            });
             return (
               <div key={date} className="todo-group">
                 <button
@@ -71,19 +78,30 @@ export default function UnfinishedDialog({
                   {info.label} {info.tag}
                 </button>
                 <ul className="todo-list">
-                  {ps.map((p) => (
-                    <li key={p.id} className="todo-item">
-                      <button
-                        className="todo-check"
-                        title="标记完成"
-                        onClick={() => onToggle(p.id)}
-                      />
-                      <span className="todo-text">
-                        {p.title}
-                        {p.note ? <em>（{p.note}）</em> : null}
-                      </span>
-                    </li>
-                  ))}
+                  {items.map((p) => {
+                    const st = dueStatus(p.dueAt);
+                    return (
+                      <li
+                        key={p.id}
+                        className={`todo-item lv-${st.level}`}
+                      >
+                        <button
+                          className="todo-check"
+                          title="标记完成"
+                          onClick={() => onToggle(p.id)}
+                        />
+                        <span className="todo-text">
+                          {p.title}
+                          {p.note ? <em>（{p.note}）</em> : null}
+                          {st.level !== 'none' && (
+                            <span className={`todo-due lv-${st.level}`}>
+                              截止 {formatTime(p.dueAt)} · {st.text}
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             );
