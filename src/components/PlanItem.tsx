@@ -3,6 +3,7 @@ import { confirm } from '@tauri-apps/plugin-dialog';
 import type { Plan } from '../lib/types';
 import { formatTime, dueStatus } from '../lib/date';
 import DateTimePicker from './DateTimePicker';
+import LabelDropdown from './LabelDropdown';
 
 interface Props {
   plan: Plan;
@@ -106,6 +107,7 @@ export default function PlanItem({
           <div className="edit-due">
             <span>截止时间</span>
             <DateTimePicker value={due} onChange={setDue} placeholder="设置截止时间" />
+            <LabelDropdown anchorDate={plan.date} onChange={setDue} />
           </div>
         </div>
       ) : (

@@ -4,6 +4,7 @@ import { getDayInfo } from '../lib/holidays';
 import { parseDate } from '../lib/date';
 import PlanItem from './PlanItem';
 import DateTimePicker from './DateTimePicker';
+import LabelDropdown from './LabelDropdown';
 
 interface Props {
   date: string;
@@ -157,6 +158,7 @@ export default function DayPanel({
       <div className="add-due">
         <span>截止时间</span>
         <DateTimePicker value={due} onChange={setDue} placeholder="设置截止时间" />
+        <LabelDropdown anchorDate={date} onChange={setDue} />
       </div>
 
       <ul className="plan-list">

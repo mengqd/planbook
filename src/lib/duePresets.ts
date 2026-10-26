@@ -31,9 +31,25 @@ export function savePresets(list: DuePreset[]): void {
   }
 }
 
-/** 把预设换算成具体的截止时间（ISO） */
-export function applyPreset(p: DuePreset): string {
-  const d = new Date();
+/**
+ * 把预设换算成具体的截止时间（ISO）。
+ * anchorDate 为任务所属日期（YYYY-MM-DD）；不传则按今天。
+ * 逻辑：以 anchorDate 为基准，加上 days 天偏移，再套用 time 时间。
+ * 这样无论你停留在哪一天（今天或未来），标签时间都会落在那一天，而不是硬塞成今天。
+ */
+export function applyPreset(p: DuePreset, anchorDate?: string): string {
+  const base = anchorDate
+    ? new Date(anchorDate + 'T00:00:00')
+    : new Date();
+  const d = new Date(
+    base.getFullYear(),
+    base.getMonth(),
+    base.getDate(),
+    0,
+    0,
+    0,
+    0,
+  );
   d.setDate(d.getDate() + (p.days || 0));
   const [h, m] = p.time.split(':').map(Number);
   d.setHours(h || 0, m || 0, 0, 0);
