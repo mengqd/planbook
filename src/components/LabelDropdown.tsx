@@ -2,14 +2,17 @@ import { useEffect, useRef, useState } from 'react';
 import { loadPresets, applyPreset, type DuePreset } from '../lib/duePresets';
 
 interface Props {
+  value: string | null;
   onChange: (iso: string | null) => void;
   /** 任务所属日期（YYYY-MM-DD），标签时间会落在该日期上 */
   anchorDate?: string;
 }
 
-export default function LabelDropdown({ onChange, anchorDate }: Props) {
+export default function LabelDropdown({ value, onChange, anchorDate }: Props) {
   const [open, setOpen] = useState(false);
   const [presets, setPresets] = useState<DuePreset[]>([]);
+  const [applied, setApplied] = useState<DuePreset | null>(null);
+  const appliedIso = useRef<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,8 +24,8 @@ export default function LabelDropdown({ onChange, anchorDate }: Props) {
     const onDoc = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener('mousedown', onDoc);
     const onChanged = () => setPresets(loadPresets());
+    document.addEventListener('mousedown', onDoc);
     window.addEventListener('duePresetsChanged', onChanged);
     return () => {
       document.removeEventListener('mousedown', onDoc);
@@ -30,8 +33,16 @@ export default function LabelDropdown({ onChange, anchorDate }: Props) {
     };
   }, [open]);
 
+  // 外部改了截止时间（日历选择 / 清除）时，清除已选标签标记，避免误导
+  useEffect(() => {
+    if (value !== appliedIso.current) setApplied(null);
+  }, [value]);
+
   const apply = (p: DuePreset) => {
-    onChange(applyPreset(p, anchorDate));
+    const iso = applyPreset(p, anchorDate);
+    appliedIso.current = iso;
+    setApplied(p);
+    onChange(iso);
     setOpen(false);
   };
 
@@ -42,11 +53,11 @@ export default function LabelDropdown({ onChange, anchorDate }: Props) {
     <div className="label-dd" ref={ref}>
       <button
         type="button"
-        className="label-dd-trigger"
+        className={`label-dd-trigger${applied ? ' applied' : ''}`}
         onClick={() => setOpen((o) => !o)}
-        title="用快捷标签快速设置截止时间"
+        title={applied ? `已选：${applied.name}` : '用快捷标签快速设置截止时间'}
       >
-        ⏱ 标签▾
+        ⏱ {applied ? applied.name : '标签'}▾
       </button>
 
       {open && (
@@ -60,12 +71,13 @@ export default function LabelDropdown({ onChange, anchorDate }: Props) {
             <button
               key={p.id}
               type="button"
-              className="label-dd-item"
+              className={`label-dd-item${applied?.id === p.id ? ' on' : ''}`}
               onClick={() => apply(p)}
               title={sub(p)}
             >
               <span className="label-dd-name">{p.name}</span>
               <span className="label-dd-sub">{sub(p)}</span>
+              {applied?.id === p.id && <span className="label-dd-check">✓</span>}
             </button>
           ))}
         </div>

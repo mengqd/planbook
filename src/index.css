@@ -890,6 +890,12 @@ body.sticky.win .stick-btn.theme {
 .label-dd-trigger:hover {
   border-color: var(--brand);
 }
+.label-dd-trigger.applied {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--brand-soft);
+  font-weight: 600;
+}
 .label-dd-pop {
   position: absolute;
   z-index: 30;
@@ -924,6 +930,19 @@ body.sticky.win .stick-btn.theme {
 }
 .label-dd-item:hover {
   background: var(--brand-soft);
+}
+.label-dd-item.on {
+  background: var(--brand-soft);
+}
+.label-dd-check {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: var(--brand);
+  font-weight: 700;
+}
+.label-dd-item {
+  position: relative;
 }
 .label-dd-name {
   font-size: 13px;

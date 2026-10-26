@@ -117,7 +117,7 @@ export default function PlanItem({
           <div className="edit-due">
             <span>截止时间</span>
             <DateTimePicker value={due} onChange={setDue} placeholder="设置截止时间" />
-            <LabelDropdown anchorDate={plan.date} onChange={setDue} />
+            <LabelDropdown value={due} anchorDate={plan.date} onChange={setDue} />
           </div>
         </div>
       ) : (
