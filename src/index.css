@@ -1591,3 +1591,49 @@ body.sticky.win .stick-btn.theme {
   color: var(--danger);
   background: rgba(229, 72, 77, 0.12);
 }
+
+/* ---------- 搜索任务弹窗 ---------- */
+.search-box {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.search-input:focus {
+  border-color: var(--brand);
+  background: var(--panel);
+}
+
+.search-count {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.todo-title {
+  font-weight: 500;
+}
+
+.todo-item.done .todo-title {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+mark {
+  background: #ffe08a;
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+}

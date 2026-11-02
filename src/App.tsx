@@ -8,6 +8,7 @@ import { usePlans } from './hooks/usePlans';
 import { initHolidays } from './lib/holidays';
 import UnfinishedDialog from './components/UnfinishedDialog';
 import LabelManagerDialog from './components/LabelManagerDialog';
+import SearchDialog from './components/SearchDialog';
 
 export default function App() {
   const {
@@ -31,6 +32,7 @@ export default function App() {
   const [pinned, setPinned] = useState(false);
   const [todoOpen, setTodoOpen] = useState(false);
   const [labelOpen, setLabelOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [, setTick] = useState(0);
 
   // 启动时加载用户更新过的节假日数据，再渲染日历
@@ -74,6 +76,12 @@ export default function App() {
       <header className="topbar">
         <div className="brand">🗒 便签</div>
         <div className="actions">
+          <button
+            onClick={() => setSearchOpen(true)}
+            title="搜索所有任务（标题 / 备注 / 日期）"
+          >
+            🔍 搜索
+          </button>
           <button
             onClick={() => setTodoOpen(true)}
             title="列出所有未完成的事项"
@@ -150,6 +158,17 @@ export default function App() {
       <LabelManagerDialog
         open={labelOpen}
         onClose={() => setLabelOpen(false)}
+      />
+
+      <SearchDialog
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        plans={plans}
+        onToggle={togglePlan}
+        onJump={(d) => {
+          setSelectedDate(d);
+          setSearchOpen(false);
+        }}
       />
     </div>
   );
