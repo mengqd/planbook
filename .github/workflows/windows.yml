@@ -31,33 +31,33 @@ jobs:
       - name: 准备发布文件（重命名为 ASCII，避免中文文件名乱码）
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          New-Item -ItemType Directory -Force -Path publish | Out-Null
           # NSIS 安装包：把开头的「便签」中文前缀换成 planbook，得到 ASCII 文件名
           $setup = Get-ChildItem -Path src-tauri/target/release/bundle/nsis -Filter *.exe | Select-Object -First 1
           if ($setup) {
             $newName = ($setup.BaseName -replace '^便签', 'planbook') + '.exe'
-            Copy-Item -Path $setup.FullName -Destination "dist/$newName"
+            Copy-Item -Path $setup.FullName -Destination "publish/$newName"
             Write-Host "安装包 -> $newName"
           }
           # 使用说明 HTML：重命名为 ASCII
           if (Test-Path "使用说明.html") {
-            Copy-Item -Path "使用说明.html" -Destination "dist/instructions.html"
+            Copy-Item -Path "使用说明.html" -Destination "publish/instructions.html"
             Write-Host "使用说明 -> instructions.html"
           }
           # 便携版：ASCII 名
           if (Test-Path "src-tauri/target/release/planbook.exe") {
-            Copy-Item -Path "src-tauri/target/release/planbook.exe" -Destination "dist/planbook-portable.exe"
+            Copy-Item -Path "src-tauri/target/release/planbook.exe" -Destination "publish/planbook-portable.exe"
             Write-Host "便携版 -> planbook-portable.exe"
           }
-          Write-Host "--- dist 内容 ---"
-          Get-ChildItem dist | ForEach-Object { Write-Host $_.Name }
+          Write-Host "--- publish 内容 ---"
+          Get-ChildItem publish | ForEach-Object { Write-Host $_.Name }
 
       - name: 上传安装包（含使用说明）
         uses: actions/upload-artifact@v4
         with:
           name: planbook-windows
           retention-days: 7
-          path: dist/*
+          path: publish/*
 
       - name: 发布到 Release（免登录下载）
         uses: softprops/action-gh-release@v2
@@ -65,4 +65,4 @@ jobs:
           tag_name: dev-build-${{ github.run_id }}
           name: Dev 构建（含搜索功能）
           prerelease: true
-          files: dist/*
+          files: publish/*
