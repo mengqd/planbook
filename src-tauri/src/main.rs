@@ -4,7 +4,11 @@
 
 use std::fs;
 use std::path::PathBuf;
-use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri::{
+    menu::{Menu, MenuItem},
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    Emitter, Manager, WebviewUrl, WebviewWindowBuilder, WindowEvent,
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -283,8 +287,27 @@ fn hide_sticky(app: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+/// 显示并聚焦主窗口（菜单栏图标、Dock 点击共用）
+fn show_main<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
+    if let Some(w) = app.get_webview_window("main") {
+        let _ = w.show();
+        let _ = w.set_focus();
+    }
+}
+
+/// 主窗口可见则隐藏，否则显示（菜单栏图标左键点击）
+fn toggle_main<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
+    if let Some(w) = app.get_webview_window("main") {
+        if w.is_visible().unwrap_or(false) {
+            let _ = w.hide();
+        } else {
+            show_main(app);
+        }
+    }
+}
+
 fn main() {
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             load_plans,
@@ -299,6 +322,82 @@ fn main() {
             close_sticky,
             sticky_debug
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .setup(|app| {
+            // 顶部菜单栏（macOS）/ 系统托盘（Windows）常驻图标 + 右键菜单
+            let show_i = MenuItem::with_id(app, "show", "打开便签", true, None::<&str>)?;
+            let sticky_i =
+                MenuItem::with_id(app, "sticky", "显示 / 隐藏桌面便签", true, None::<&str>)?;
+            let quit_i = MenuItem::with_id(app, "quit", "退出便签", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&show_i, &sticky_i, &quit_i])?;
+
+            // 菜单栏用透明背景的模板图标（应用主图标是不透明方块，模板化会成黑块）
+            let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/tray.png"))
+                .map_err(|e| e.to_string())?;
+
+            TrayIconBuilder::new()
+                .icon(icon)
+                // macOS 菜单栏使用模板图标，自动适配深色/浅色菜单栏
+                .icon_as_template(true)
+                .menu(&menu)
+                // 左键直接切换主窗口，右键才弹菜单
+                .show_menu_on_left_click(false)
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "show" => show_main(app),
+                    "sticky" => {
+                        let handle = app.clone();
+                        tauri::async_runtime::spawn(async move {
+                            if let Some(w) = handle.get_webview_window("sticky") {
+                                if w.is_visible().unwrap_or(false) {
+                                    let _ = w.hide();
+                                } else {
+                                    let _ = w.show();
+                                    let _ = w.set_focus();
+                                }
+                            } else {
+                                // 首次使用时创建便签窗口（必须在异步线程中创建）
+                                let _ = show_sticky(handle).await;
+                            }
+                        });
+                    }
+                    "quit" => app.exit(0),
+                    _ => {}
+                })
+                .on_tray_icon_event(|tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        toggle_main(tray.app_handle());
+                    }
+                })
+                .build(app)?;
+            Ok(())
+        })
+        // 点主窗口红叉时隐藏到菜单栏，而不是退出应用
+        .on_window_event(|window, event| {
+            if window.label() == "main" {
+                if let WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    let _ = window.hide();
+                }
+            }
+        })
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+
+    // macOS：点击 Dock 图标时把隐藏的主窗口重新显示出来
+    app.run(|handle, event| {
+        #[cfg(target_os = "macos")]
+        {
+            if let tauri::RunEvent::Reopen { .. } = event {
+                show_main(handle);
+            }
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = (handle, event);
+        }
+    });
 }
