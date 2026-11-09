@@ -19,6 +19,7 @@ export default function App() {
     plans,
     addPlan,
     updatePlan,
+    attachFiles,
     removePlan,
     togglePlan,
     doExport,
@@ -133,6 +134,7 @@ export default function App() {
             onAdd={addPlan}
             onToggle={togglePlan}
             onUpdate={updatePlan}
+            onAttach={attachFiles}
             onRemove={removePlan}
           />
         </main>

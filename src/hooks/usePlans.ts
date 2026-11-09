@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
-import type { Plan } from '../lib/types';
+import type { Attachment, Plan } from '../lib/types';
 import { currentWindowLabel } from '../lib/window';
 import {
   loadPlans,
@@ -10,6 +10,7 @@ import {
   downloadTemplate,
 } from '../lib/storage';
 import { todayStr, type DateStr } from '../lib/date';
+import { mergeAttachments } from '../lib/attachments';
 
 function uid(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -99,7 +100,12 @@ export function usePlans() {
   );
 
   const addPlan = useCallback(
-    (title: string, note?: string, dueAt?: string | null) => {
+    (
+      title: string,
+      note?: string,
+      dueAt?: string | null,
+      attachments?: Attachment[],
+    ) => {
       const now = new Date().toISOString();
       const plan: Plan = {
         id: uid(),
@@ -110,6 +116,7 @@ export function usePlans() {
         createdAt: now,
         updatedAt: now,
         dueAt: dueAt ?? null,
+        ...(attachments && attachments.length > 0 ? { attachments } : {}),
       };
       setPlans((prev) => [...prev, plan]);
     },
@@ -121,6 +128,21 @@ export function usePlans() {
       prev.map((p) =>
         p.id === id
           ? { ...p, ...patch, updatedAt: new Date().toISOString() }
+          : p,
+      ),
+    );
+  }, []);
+
+  /** 拖拽绑定附件：基于最新状态累加，避免用过期快照覆盖已有附件 */
+  const attachFiles = useCallback((id: string, added: Attachment[]) => {
+    setPlans((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              attachments: mergeAttachments(p.attachments ?? [], added),
+              updatedAt: new Date().toISOString(),
+            }
           : p,
       ),
     );
@@ -179,6 +201,7 @@ export function usePlans() {
     plansByDate,
     addPlan,
     updatePlan,
+    attachFiles,
     removePlan,
     togglePlan,
     doExport,

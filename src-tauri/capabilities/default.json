@@ -6,6 +6,7 @@
   "permissions": [
     "core:default",
     "dialog:default",
+    "opener:default",
     "core:event:allow-listen",
     "core:event:allow-emit"
   ]

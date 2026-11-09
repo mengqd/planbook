@@ -1637,3 +1637,226 @@ mark {
   border-radius: 3px;
   padding: 0 1px;
 }
+
+/* ---------- 任务附件（本地文件 / 文件夹） ---------- */
+.plan-item.drop-target {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  box-shadow: 0 0 0 2px rgba(47, 111, 216, 0.28);
+}
+
+.plan-list {
+  position: relative;
+}
+.plan-list.drop-blank {
+  outline: 2px dashed var(--brand);
+  outline-offset: -5px;
+  border-radius: 10px;
+}
+.plan-list.drop-blank::after {
+  content: '松手新建任务并绑定文件';
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: var(--brand);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.attach {
+  margin-top: 8px;
+}
+.attach-list {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.attach-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  font-size: 11.5px;
+  min-width: 0;
+}
+.attach-item.gone {
+  opacity: 0.55;
+  border-style: dashed;
+}
+.attach-icon {
+  flex-shrink: 0;
+  font-size: 13px;
+}
+.attach-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+.attach-item.gone .attach-name {
+  text-decoration: line-through;
+}
+.attach-gone {
+  flex-shrink: 0;
+  color: #e0343c;
+  font-size: 11px;
+  font-weight: 600;
+}
+.attach-op {
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--brand);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.attach-op:hover {
+  background: var(--brand-soft);
+}
+.attach-op.del {
+  border: none;
+  color: var(--text-soft);
+  padding: 2px 4px;
+}
+.attach-op.del:hover {
+  background: transparent;
+  color: #e0343c;
+}
+.attach-add {
+  position: relative;
+  display: inline-block;
+}
+.attach-add-btn {
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-soft);
+  border-radius: 7px;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.attach-add-btn:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+.attach-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 170px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+  padding: 4px;
+}
+.attach-menu button {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  padding: 7px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.attach-menu button:hover {
+  background: var(--brand-soft);
+}
+.attach-error {
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: #c1121f;
+  line-height: 1.5;
+}
+
+/* ---------- 拖入空白处：新建任务弹窗 ---------- */
+.ntf-modal {
+  width: 440px;
+}
+.ntf-files {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--panel-2);
+  margin-bottom: 14px;
+  max-height: 130px;
+  overflow: auto;
+}
+.ntf-file {
+  font-size: 12.5px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ntf-file.more {
+  color: var(--text-soft);
+}
+.ntf-choice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  margin: 8px 0 4px;
+}
+.ntf-preview {
+  margin: 2px 0 8px 22px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 13px;
+  font-weight: 600;
+  word-break: break-all;
+}
+.ntf-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 8px 22px;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.ntf-input:focus {
+  border-color: var(--brand);
+}
+.ntf-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+.primary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

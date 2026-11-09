@@ -4,10 +4,12 @@ import type { Plan } from '../lib/types';
 import { formatTime, dueStatus } from '../lib/date';
 import DateTimePicker from './DateTimePicker';
 import LabelDropdown from './LabelDropdown';
+import AttachmentList from './AttachmentList';
 
 interface Props {
   plan: Plan;
   selected: boolean;
+  dropTarget?: boolean;
   onToggleSelect: (id: string) => void;
   onToggle: (id: string) => void;
   onUpdate: (id: string, patch: Partial<Plan>) => void;
@@ -17,6 +19,7 @@ interface Props {
 export default function PlanItem({
   plan,
   selected,
+  dropTarget = false,
   onToggleSelect,
   onToggle,
   onUpdate,
@@ -79,9 +82,10 @@ export default function PlanItem({
 
   return (
     <li
+      data-plan-id={plan.id}
       className={`plan-item ${plan.done ? 'done' : ''} ${
         selected ? 'selected' : ''
-      }`}
+      } ${dropTarget ? 'drop-target' : ''}`}
     >
       <input
         type="checkbox"
@@ -139,6 +143,10 @@ export default function PlanItem({
               </span>
             )}
           </div>
+          <AttachmentList
+            items={plan.attachments ?? []}
+            onChange={(next) => onUpdate(plan.id, { attachments: next })}
+          />
         </div>
       )}
       <button

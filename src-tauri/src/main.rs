@@ -10,6 +10,16 @@ use tauri::{
     Emitter, Manager, WebviewUrl, WebviewWindowBuilder, WindowEvent,
 };
 
+/// 任务绑定的本地文件 / 文件夹
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+struct Attachment {
+    path: String,
+    name: String,
+    /// "file" | "dir"
+    kind: String,
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 struct Plan {
@@ -22,6 +32,57 @@ struct Plan {
     updated_at: String,
     completed_at: Option<String>,
     due_at: Option<String>,
+    // default: 兼容历史 plans.json（没有该字段的旧数据）
+    #[serde(default)]
+    attachments: Vec<Attachment>,
+}
+
+/// 探测拖入 / 已绑定的路径：名称、类型、是否仍然存在
+#[derive(serde::Serialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+struct PathInfo {
+    path: String,
+    name: String,
+    kind: String,
+    exists: bool,
+}
+
+fn probe_path(p: &str) -> PathInfo {
+    let path = std::path::Path::new(p);
+    let name = path
+        .file_name()
+        .map(|s| s.to_string_lossy().into_owned())
+        .unwrap_or_else(|| p.to_string());
+    let (kind, exists) = match fs::metadata(path) {
+        Ok(m) if m.is_dir() => ("dir", true),
+        Ok(_) => ("file", true),
+        Err(_) => ("file", false),
+    };
+    PathInfo {
+        path: p.to_string(),
+        name,
+        kind: kind.to_string(),
+        exists,
+    }
+}
+
+#[tauri::command]
+fn inspect_paths(paths: Vec<String>) -> Vec<PathInfo> {
+    paths.iter().map(|p| probe_path(p)).collect()
+}
+
+/// 打开附件；reveal=true 表示在文件管理器中定位（仅文件使用）
+#[tauri::command]
+fn open_attachment(path: String, reveal: bool) -> Result<(), String> {
+    if !std::path::Path::new(&path).exists() {
+        return Err("该路径已不存在，可能已被移动或删除".to_string());
+    }
+    let result = if reveal {
+        tauri_plugin_opener::reveal_item_in_dir(&path)
+    } else {
+        tauri_plugin_opener::open_path(&path, None::<&str>)
+    };
+    result.map_err(|e| format!("打开失败: {e}"))
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -309,6 +370,7 @@ fn toggle_main<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
 fn main() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             load_plans,
             save_plans,
@@ -320,7 +382,9 @@ fn main() {
             show_sticky,
             hide_sticky,
             close_sticky,
-            sticky_debug
+            sticky_debug,
+            inspect_paths,
+            open_attachment
         ])
         .setup(|app| {
             // 顶部菜单栏（macOS）/ 系统托盘（Windows）常驻图标 + 右键菜单
