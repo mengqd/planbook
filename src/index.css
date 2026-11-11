@@ -1879,13 +1879,19 @@ mark {
 
 /* ---------- 提交日报（seca-oa 工时） ---------- */
 .oa-modal {
-  width: 560px;
+  width: 680px;
+  max-height: 92vh;
+  /* 其它弹窗靠 .modal-head/.modal-body 留白，本弹窗是裸内容，需自带内边距 */
+  padding: 20px 22px 18px;
+}
+.oa-modal h3 {
+  margin: 0 0 16px;
 }
 .oa-conn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 .oa-conn-ok {
   color: #1a7f37;
@@ -1907,13 +1913,13 @@ mark {
 }
 .oa-token-row {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 .oa-token-input {
   flex: 1;
   min-width: 0;
-  padding: 8px 11px;
+  padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel-2);
@@ -1926,16 +1932,16 @@ mark {
 }
 .oa-ranges {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 .oa-ranges button {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: transparent;
   color: var(--text);
-  font-size: 12.5px;
-  padding: 5px 14px;
+  font-size: 13px;
+  padding: 7px 17px;
   cursor: pointer;
 }
 .oa-ranges button.on {
@@ -1945,7 +1951,7 @@ mark {
   font-weight: 600;
 }
 .oa-empty {
-  padding: 26px 0;
+  padding: 32px 0;
   text-align: center;
   color: var(--text-soft);
   font-size: 13px;
@@ -1953,10 +1959,10 @@ mark {
 .oa-rows {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   max-height: 360px;
   overflow: auto;
-  padding: 2px;
+  padding: 2px 4px 4px 2px;
 }
 /* ---------- 按天分组：周一~周日固定配色 ---------- */
 .oa-day-0 { --day-color: var(--oa-day-0); }
@@ -1969,7 +1975,7 @@ mark {
 .oa-day-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 9px;
 }
 .oa-day-head {
   /* 任务多需要滚动时，当天标题吸顶，不会滚着滚着忘了属于哪天 */
@@ -1978,8 +1984,8 @@ mark {
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  gap: 10px;
+  padding: 8px 12px;
   border: 1px solid var(--border);
   border-left: 4px solid var(--day-color);
   border-radius: 8px;
@@ -1993,7 +1999,7 @@ mark {
   flex-shrink: 0;
 }
 .oa-day-label {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--day-color);
 }
@@ -2020,7 +2026,7 @@ mark {
 .oa-row {
   border: 1px solid var(--border);
   border-radius: 9px;
-  padding: 7px 9px;
+  padding: 10px 12px;
   background: var(--panel-2);
 }
 .oa-day-group .oa-row {
@@ -2032,7 +2038,7 @@ mark {
 .oa-row-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
 }
 .oa-row-date {
@@ -2046,24 +2052,25 @@ mark {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 500;
 }
+/* 第一行四个下拉均分，第二行工作内容独占整行，不再挤成一行 */
 .oa-row-cfg {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 6px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1.7fr 1.3fr 1fr 0.9fr;
+  gap: 8px;
+  margin-top: 10px;
 }
 .oa-row-cfg select {
-  max-width: 118px;
-  padding: 4px 4px;
+  width: 100%;
+  min-width: 0;
+  padding: 7px 8px;
   border: 1px solid var(--border);
   border-radius: 7px;
   background: var(--panel);
   color: var(--text);
-  font-size: 11.5px;
+  font-size: 12.5px;
   outline: none;
   cursor: pointer;
 }
@@ -2071,14 +2078,15 @@ mark {
   border-color: var(--brand);
 }
 .oa-remarks {
-  flex: 1;
-  min-width: 150px;
-  padding: 4px 8px;
+  grid-column: 1 / -1;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: 7px;
   background: var(--panel);
   color: var(--text);
-  font-size: 11.5px;
+  font-size: 12.5px;
   outline: none;
 }
 .oa-remarks:focus {
@@ -2091,11 +2099,11 @@ mark {
   line-height: 1.5;
 }
 .oa-results {
-  margin-top: 10px;
+  margin-top: 12px;
   border: 1px solid var(--border);
   border-radius: 9px;
   background: var(--panel-2);
-  padding: 8px 10px;
+  padding: 10px 12px;
 }
 .oa-results-sum {
   font-size: 12.5px;
@@ -2115,16 +2123,18 @@ mark {
 .oa-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
 }
 .oa-actions .oa-hint {
   flex: 1;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--text-soft);
 }
 .oa-actions button {
-  padding: 8px 16px;
+  padding: 9px 18px;
   border: 1px solid var(--border);
   border-radius: 9px;
   background: var(--panel);
