@@ -13,6 +13,14 @@
   --danger: #e5484d;
   --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 30px rgba(16, 24, 40, 0.06);
   --radius: 14px;
+  /* 提交日报：按天分组的周一~周日配色 */
+  --oa-day-0: #2f6bff;
+  --oa-day-1: #8b5cf6;
+  --oa-day-2: #0e8f9e;
+  --oa-day-3: #059669;
+  --oa-day-4: #d97706;
+  --oa-day-5: #db2777;
+  --oa-day-6: #64748b;
   color-scheme: light dark;
 }
 
@@ -31,6 +39,14 @@
     --done: #5b626c;
     --danger: #ff5c61;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.35);
+    /* 深色菜单栏下提亮分组色，保证可读 */
+    --oa-day-0: #7aa5ff;
+    --oa-day-1: #b39aff;
+    --oa-day-2: #4fd1d9;
+    --oa-day-3: #4ade9f;
+    --oa-day-4: #fbbf5a;
+    --oa-day-5: #f47fb0;
+    --oa-day-6: #a3b0c2;
   }
 }
 
@@ -1937,16 +1953,78 @@ mark {
 .oa-rows {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 330px;
+  gap: 12px;
+  max-height: 360px;
   overflow: auto;
   padding: 2px;
+}
+/* ---------- 按天分组：周一~周日固定配色 ---------- */
+.oa-day-0 { --day-color: var(--oa-day-0); }
+.oa-day-1 { --day-color: var(--oa-day-1); }
+.oa-day-2 { --day-color: var(--oa-day-2); }
+.oa-day-3 { --day-color: var(--oa-day-3); }
+.oa-day-4 { --day-color: var(--oa-day-4); }
+.oa-day-5 { --day-color: var(--oa-day-5); }
+.oa-day-6 { --day-color: var(--oa-day-6); }
+.oa-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.oa-day-head {
+  /* 任务多需要滚动时，当天标题吸顶，不会滚着滚着忘了属于哪天 */
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--day-color);
+  border-radius: 8px;
+  background: var(--panel-2);
+}
+.oa-day-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--day-color);
+  flex-shrink: 0;
+}
+.oa-day-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--day-color);
+}
+.oa-today-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--day-color);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.oa-day-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+.oa-row-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--day-color, var(--text-soft));
+  flex-shrink: 0;
 }
 .oa-row {
   border: 1px solid var(--border);
   border-radius: 9px;
   padding: 7px 9px;
   background: var(--panel-2);
+}
+.oa-day-group .oa-row {
+  border-left: 3px solid var(--day-color);
 }
 .oa-row.off {
   opacity: 0.5;

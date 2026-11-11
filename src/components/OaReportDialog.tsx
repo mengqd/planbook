@@ -110,6 +110,20 @@ export default function OaReportDialog({
       .sort((a, b) => (a.date === b.date ? 0 : a.date < b.date ? -1 : 1));
   }, [plans, range]);
 
+  /** 按日期分组；颜色按周几固定（周一~周日各一色），切换范围时同一天颜色不变 */
+  const dayGroups = useMemo(() => {
+    const map = new Map<string, Plan[]>();
+    for (const p of inRangePlans) {
+      if (!map.has(p.date)) map.set(p.date, []);
+      map.get(p.date)!.push(p);
+    }
+    return [...map.entries()].map(([date, items]) => ({
+      date,
+      items,
+      dayIdx: (parseDate(date).getDay() + 6) % 7,
+    }));
+  }, [inRangePlans]);
+
   // 范围变化时重置勾选与配置（出勤类型按星期给初值：周末=加班，工作日=工作）
   useEffect(() => {
     setChecked(Object.fromEntries(inRangePlans.map((p) => [p.id, true])));
@@ -271,23 +285,32 @@ export default function OaReportDialog({
               </div>
             ) : (
               <div className="oa-rows">
-                {inRangePlans.map((p) => {
-                  const on = !!checked[p.id];
-                  const c = config[p.id];
-                  const wd = WEEKDAY_LABELS[(parseDate(p.date).getDay() + 6) % 7];
-                  return (
-                    <div key={p.id} className={`oa-row ${on ? '' : 'off'}`}>
-                      <label className="oa-row-head">
-                        <input
-                          type="checkbox"
-                          checked={on}
-                          onChange={(e) =>
-                            setChecked((prev) => ({ ...prev, [p.id]: e.target.checked }))
-                          }
-                        />
-                        <span className="oa-row-date">
-                          {p.date.slice(5)} 周{wd}
-                        </span>
+                {dayGroups.map((g) => (
+                  <div key={g.date} className={`oa-day-group oa-day-${g.dayIdx}`}>
+                    <div className="oa-day-head">
+                      <span className="oa-day-dot" />
+                      <span className="oa-day-label">
+                        {Number(g.date.slice(5, 7))}月{Number(g.date.slice(8, 10))}日 · 周{WEEKDAY_LABELS[g.dayIdx]}
+                      </span>
+                      {g.date === todayStr() ? (
+                        <span className="oa-today-badge">今天</span>
+                      ) : null}
+                      <span className="oa-day-count">{g.items.length} 项已完成</span>
+                    </div>
+                    {g.items.map((p) => {
+                      const on = !!checked[p.id];
+                      const c = config[p.id];
+                      return (
+                        <div key={p.id} className={`oa-row ${on ? '' : 'off'}`}>
+                          <label className="oa-row-head">
+                            <input
+                              type="checkbox"
+                              checked={on}
+                              onChange={(e) =>
+                                setChecked((prev) => ({ ...prev, [p.id]: e.target.checked }))
+                              }
+                            />
+                            <span className="oa-row-dot" />
                         <span className="oa-row-title" title={p.title}>
                           {p.title}
                         </span>
@@ -360,9 +383,11 @@ export default function OaReportDialog({
                           />
                         </div>
                       ) : null}
-                    </div>
-                  );
-                })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             )}
 
