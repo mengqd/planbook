@@ -305,6 +305,55 @@ async fn show_sticky(app: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+const OA_BASE: &str = "http://seca-oa.zhibo.tv/oa/worktime-api/";
+
+/// seca-oa 工时 API 通用转发：WebView 直连外部域名受 CORS 限制，统一走本机 HTTP。
+/// 令牌仅由前端在调用时传入，不在 Rust 侧持久化。
+#[tauri::command]
+async fn oa_request(
+    token: String,
+    method: String,
+    path: String,
+    query: Option<String>,
+    payload: Option<serde_json::Value>,
+) -> Result<serde_json::Value, String> {
+    let mut url = format!("{}{}", OA_BASE, path.trim_start_matches('/'));
+    if let Some(q) = query {
+        let q = q.trim();
+        if !q.is_empty() {
+            url.push('?');
+            url.push_str(q);
+        }
+    }
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(20))
+        .build()
+        .map_err(|e| e.to_string())?;
+    let m = if method.eq_ignore_ascii_case("POST") {
+        reqwest::Method::POST
+    } else {
+        reqwest::Method::GET
+    };
+    let mut req = client
+        .request(m, &url)
+        .header("Authorization", format!("Bearer {}", token.trim()));
+    if let Some(p) = payload {
+        // 服务端推荐表单 payload=<json>，也兼容 application/json 原始体
+        let body = serde_json::to_string(&p).map_err(|e| e.to_string())?;
+        req = req.form(&[("payload", body)]);
+    }
+    let resp = req.send().await.map_err(|e| format!("网络请求失败：{e}"))?;
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    serde_json::from_str(&text).map_err(|_| {
+        format!(
+            "响应不是 JSON（HTTP {}）：{}",
+            status,
+            text.chars().take(120).collect::<String>()
+        )
+    })
+}
+
 /// 便签窗口排障日志，写到 ~/Library/Application Support/<id>/sticky-debug.log
 #[tauri::command]
 fn sticky_debug(app: tauri::AppHandle, msg: String) -> Result<(), String> {
@@ -384,7 +433,8 @@ fn main() {
             close_sticky,
             sticky_debug,
             inspect_paths,
-            open_attachment
+            open_attachment,
+            oa_request
         ])
         .setup(|app| {
             // 顶部菜单栏（macOS）/ 系统托盘（Windows）常驻图标 + 右键菜单

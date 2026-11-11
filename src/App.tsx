@@ -9,6 +9,7 @@ import { initHolidays } from './lib/holidays';
 import UnfinishedDialog from './components/UnfinishedDialog';
 import LabelManagerDialog from './components/LabelManagerDialog';
 import SearchDialog from './components/SearchDialog';
+import OaReportDialog from './components/OaReportDialog';
 
 export default function App() {
   const {
@@ -34,6 +35,7 @@ export default function App() {
   const [todoOpen, setTodoOpen] = useState(false);
   const [labelOpen, setLabelOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [oaOpen, setOaOpen] = useState(false);
   const [, setTick] = useState(0);
 
   // 启动时加载用户更新过的节假日数据，再渲染日历
@@ -77,6 +79,12 @@ export default function App() {
       <header className="topbar">
         <div className="brand">🗒 便签</div>
         <div className="actions">
+          <button
+            onClick={() => setOaOpen(true)}
+            title="把已完成的任务提交到 seca-oa 工时（日报/周报）"
+          >
+            提交日报
+          </button>
           <button
             onClick={() => setSearchOpen(true)}
             title="搜索所有任务（标题 / 备注 / 日期）"
@@ -172,6 +180,10 @@ export default function App() {
           setSearchOpen(false);
         }}
       />
+
+      {oaOpen && (
+        <OaReportDialog plans={plans} onClose={() => setOaOpen(false)} />
+      )}
     </div>
   );
 }

@@ -1860,3 +1860,203 @@ mark {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ---------- 提交日报（seca-oa 工时） ---------- */
+.oa-modal {
+  width: 560px;
+}
+.oa-conn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.oa-conn-ok {
+  color: #1a7f37;
+  font-size: 13px;
+  font-weight: 600;
+}
+.oa-conn-edit {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 12px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+.oa-conn-edit:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+}
+.oa-token-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.oa-token-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.oa-token-input:focus {
+  border-color: var(--brand);
+}
+.oa-ranges {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.oa-ranges button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12.5px;
+  padding: 5px 14px;
+  cursor: pointer;
+}
+.oa-ranges button.on {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 600;
+}
+.oa-empty {
+  padding: 26px 0;
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+.oa-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 330px;
+  overflow: auto;
+  padding: 2px;
+}
+.oa-row {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 7px 9px;
+  background: var(--panel-2);
+}
+.oa-row.off {
+  opacity: 0.5;
+}
+.oa-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.oa-row-date {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  color: var(--text-soft);
+}
+.oa-row-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+}
+.oa-row-cfg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.oa-row-cfg select {
+  max-width: 118px;
+  padding: 4px 4px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 11.5px;
+  outline: none;
+  cursor: pointer;
+}
+.oa-row-cfg select:focus {
+  border-color: var(--brand);
+}
+.oa-remarks {
+  flex: 1;
+  min-width: 150px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 11.5px;
+  outline: none;
+}
+.oa-remarks:focus {
+  border-color: var(--brand);
+}
+.oa-error {
+  margin-top: 8px;
+  color: #c1121f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.oa-results {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--panel-2);
+  padding: 8px 10px;
+}
+.oa-results-sum {
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.oa-result {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.oa-result.ok {
+  color: #1a7f37;
+}
+.oa-result.fail {
+  color: #c1121f;
+}
+.oa-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.oa-actions .oa-hint {
+  flex: 1;
+  font-size: 11.5px;
+  color: var(--text-soft);
+}
+.oa-actions button {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.oa-actions .primary-btn {
+  border: none;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+}
