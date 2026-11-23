@@ -12,6 +12,8 @@ import NewTaskFromFilesDialog from './NewTaskFromFilesDialog';
 interface Props {
   date: string;
   plans: Plan[];
+  /** 全量任务（跨天复制选中时使用） */
+  allPlans: Plan[];
   onAdd: (
     title: string,
     note?: string,
@@ -45,6 +47,7 @@ function hitTest(x: number, y: number): Hit {
 export default function DayPanel({
   date,
   plans,
+  allPlans,
   onAdd,
   onToggle,
   onUpdate,
@@ -79,7 +82,10 @@ export default function DayPanel({
     inputRef.current?.focus();
   }, [date]);
 
-  const selectedCount = plans.filter((p) => selected.has(p.id)).length;
+  // 选中集合跨天保留：统计时用全量任务，勾过其它日期的任务也会算进来
+  const selectedAll = allPlans.filter((p) => selected.has(p.id));
+  const selectedCount = selectedAll.length;
+  const selectedDays = new Set(selectedAll.map((p) => p.date)).size;
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -115,11 +121,28 @@ export default function DayPanel({
   };
 
   const handleCopy = async () => {
-    const toCopy = plans.filter((p) => selected.has(p.id));
+    const toCopy = allPlans.filter((p) => selected.has(p.id));
     if (toCopy.length === 0) return;
-    const body = toCopy
-      .map((p) => `${p.title}${p.note ? `（${p.note}）` : ''}`)
-      .join('\n');
+    const fmt = (p: Plan) => {
+      const note = p.note ? `（${p.note}）` : '';
+      const dur = p.duration ? `（${p.duration === '01' ? '1' : p.duration}h）` : '';
+      return `${p.title}${note}${dur}`;
+    };
+    // 只勾了一天时保持原格式；跨天时按日期分组，便于直接粘贴成日报
+    const dates = [...new Set(toCopy.map((p) => p.date))].sort();
+    const body =
+      dates.length === 1
+        ? toCopy.map(fmt).join('\n')
+        : dates
+            .map((d) => {
+              const wd = WEEKDAYS[parseDate(d).getDay()];
+              const head = `【${Number(d.slice(5, 7))}月${Number(d.slice(8, 10))}日 周${wd}】`;
+              return `${head}\n${toCopy
+                .filter((p) => p.date === d)
+                .map(fmt)
+                .join('\n')}`;
+            })
+            .join('\n');
     const ok = await copyText(body);
     if (ok) {
       setCopied(true);
@@ -231,12 +254,23 @@ export default function DayPanel({
           <div className="day-progress">
             {plans.length ? `${doneCount}/${plans.length} 已完成` : '暂无计划'}
           </div>
+          {selectedDays > 1 && (
+            <button
+              className="clear-sel"
+              onClick={() => setSelected(new Set())}
+              title="取消所有勾选（含其它日期）"
+            >
+              清空
+            </button>
+          )}
           <button
             className="copy-btn"
             onClick={handleCopy}
             disabled={selectedCount === 0}
           >
-            {copied ? '已复制' : `复制选中${selectedCount ? `(${selectedCount})` : ''}`}
+            {copied
+              ? '已复制'
+              : `复制选中(${selectedCount}${selectedDays > 1 ? `·${selectedDays}天` : ''})`}
           </button>
         </div>
       </header>

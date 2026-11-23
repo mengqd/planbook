@@ -139,6 +139,7 @@ export default function App() {
           <DayPanel
             date={selectedDate}
             plans={selectedPlans}
+            allPlans={plans}
             onAdd={addPlan}
             onToggle={togglePlan}
             onUpdate={updatePlan}

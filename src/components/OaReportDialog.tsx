@@ -12,15 +12,16 @@ import {
   type OaBatchResult,
 } from '../lib/oa';
 
-type RangeKey = 'today' | 'yesterday' | 'week';
+type RangeKey = 'today' | 'yesterday' | 'week' | 'lastweek';
 
 const RANGE_LABELS: Record<RangeKey, string> = {
   today: '今天',
   yesterday: '昨天',
   week: '本周（周一~今天）',
+  lastweek: '上一周（周一~周日）',
 };
 
-/** 每条任务对应的工时配置；时长不设默认，全部手动填 */
+/** 每条任务对应的工时配置；时长默认取任务上设置的值，未设置则需手动选 */
 interface RowConfig {
   dayType: number; // 出勤类型：默认工作日=工作(2) 周末=加班(3)，可改
   project: number; // 二级项目 id，0=未选
@@ -101,6 +102,13 @@ export default function OaReportDialog({
       lo = hi = today;
     } else if (range === 'yesterday') {
       lo = hi = yesterday;
+    } else if (range === 'lastweek') {
+      const mon = new Date();
+      mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7) - 7);
+      lo = formatDate(mon);
+      const sun = new Date(mon);
+      sun.setDate(sun.getDate() + 6);
+      hi = formatDate(sun);
     } else {
       lo = mondayOfToday();
       hi = today;
@@ -137,7 +145,7 @@ export default function OaReportDialog({
               dayType: wd === 0 || wd === 6 ? 3 : 2,
               project: 0,
               type: 0,
-              workOvertime: '',
+              workOvertime: p.duration ?? '', // 任务上设过时长则自动带入
               remarks: p.title,
             } satisfies RowConfig,
           ];

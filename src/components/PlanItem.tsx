@@ -16,6 +16,11 @@ interface Props {
   onRemove: (id: string) => void;
 }
 
+/** 工时时长枚举，与 seca-oa 的 workOvertimeOptions 完全一致；'01' 表示加班 1 小时 */
+const DURATION_OPTIONS = ['8', '2', '3', '4', '5', '6', '7', '9', '10', '11', '12', '01'];
+
+const durationLabel = (v: string) => (v === '01' ? '1h' : `${v}h`);
+
 export default function PlanItem({
   plan,
   selected,
@@ -130,7 +135,23 @@ export default function PlanItem({
           onDoubleClick={() => setEditing(true)}
           title="双击编辑：可修改标题和备注，回车保存，Esc 取消"
         >
-          <div className="plan-title">{plan.title}</div>
+          <div className="plan-title">
+            <span className="plan-title-text">{plan.title}</span>
+            <select
+              className={`plan-duration ${plan.duration ? 'set' : ''}`}
+              value={plan.duration ?? ''}
+              onChange={(e) => onUpdate(plan.id, { duration: e.target.value || undefined })}
+              onDoubleClick={(e) => e.stopPropagation()}
+              title="工时时长（提交日报自动带入，复制选中时一并复制）"
+            >
+              <option value="">时长</option>
+              {DURATION_OPTIONS.map((v) => (
+                <option key={v} value={v}>
+                  {durationLabel(v)}
+                </option>
+              ))}
+            </select>
+          </div>
           {plan.note && <div className="plan-note">{plan.note}</div>}
           <div className="plan-meta">
             添加于 {formatTime(plan.createdAt)}
