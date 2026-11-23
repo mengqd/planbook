@@ -17,7 +17,7 @@ interface Props {
 }
 
 /** 工时时长枚举，与 seca-oa 的 workOvertimeOptions 完全一致；'01' 表示加班 1 小时 */
-const DURATION_OPTIONS = ['8', '2', '3', '4', '5', '6', '7', '9', '10', '11', '12', '01'];
+const DURATION_OPTIONS = ['01', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
 const durationLabel = (v: string) => (v === '01' ? '1h' : `${v}h`);
 
