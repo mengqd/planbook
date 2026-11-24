@@ -1414,6 +1414,97 @@ body.sticky.win .stick-btn.theme {
   color: var(--danger);
   border-color: var(--danger);
 }
+/* ---------- 按日期范围复制 ---------- */
+.range-wrap {
+  position: relative;
+}
+.range-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.range-btn:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+}
+.range-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  width: 320px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.range-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+.range-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.range-row input[type='date'] {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12.5px;
+  outline: none;
+}
+.range-row input[type='date']:focus {
+  border-color: var(--brand);
+}
+.range-sep {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.range-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--text);
+  cursor: pointer;
+}
+.range-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.range-count {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.range-cancel {
+  padding: 7px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.range-pop .copy-btn {
+  padding: 7px 15px;
+  font-size: 12.5px;
+}
 .copy-btn {
   padding: 6px 14px;
   border: 1px solid transparent;

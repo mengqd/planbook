@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import type { Attachment, Plan } from '../lib/types';
 import { getDayInfo } from '../lib/holidays';
-import { parseDate } from '../lib/date';
+import { formatDate, parseDate } from '../lib/date';
 import { inspectPaths, type PathInfo } from '../lib/attachments';
 import PlanItem from './PlanItem';
 import DateTimePicker from './DateTimePicker';
@@ -33,8 +33,28 @@ interface Hit {
   inPanel: boolean;
 }
 
-/** Tauri 的拖拽坐标是物理像素，需换算成 CSS 像素再定位落点元素 */
-function hitTest(x: number, y: number): Hit {
+/** 复制文本：单天保持「标题（备注）（时长）」原格式，跨天按日期分组，每条带时长 */
+function buildCopyBody(items: Plan[]): string {
+  const fmt = (p: Plan) => {
+    const note = p.note ? `（${p.note}）` : '';
+    const dur = p.duration ? `（${p.duration === '01' ? '1' : p.duration}h）` : '';
+    return `${p.title}${note}${dur}`;
+  };
+  const sorted = [...items].sort((a, b) =>
+    a.date === b.date ? 0 : a.date < b.date ? -1 : 1,
+  );
+  const dates = [...new Set(sorted.map((p) => p.date))];
+  if (dates.length === 1) return sorted.map(fmt).join('\n');
+  return dates
+    .map((d) => {
+      const wd = WEEKDAYS[parseDate(d).getDay()];
+      const head = `【${Number(d.slice(5, 7))}月${Number(d.slice(8, 10))}日 周${wd}】`;
+      return `${head}\n${sorted.filter((p) => p.date === d).map(fmt).join('\n')}`;
+    })
+    .join('\n');
+}
+
+/** Tauri 的拖拽坐标是物理像素，需换算成 CSS 像素再定位落点元素 */function hitTest(x: number, y: number): Hit {
   const dpr = window.devicePixelRatio || 1;
   const el = document.elementFromPoint(x / dpr, y / dpr);
   if (!el) return { planId: null, inPanel: false };
@@ -96,6 +116,60 @@ export default function DayPanel({
     });
   };
 
+  // 按日期范围复制：选起止日期一键导出该范围内的任务
+  const [rangeOpen, setRangeOpen] = useState(false);
+  const [rangeFrom, setRangeFrom] = useState('');
+  const [rangeTo, setRangeTo] = useState('');
+  const [rangeDoneOnly, setRangeDoneOnly] = useState(true);
+  const rangeRef = useRef<HTMLDivElement>(null);
+
+  const openRange = () => {
+    // 默认范围：当前日期所在周的周一 ~ 当前日期
+    const mon = parseDate(date);
+    mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
+    setRangeFrom(formatDate(mon));
+    setRangeTo(date);
+    setRangeOpen(true);
+  };
+
+  // 点击面板外自动关闭
+  useEffect(() => {
+    if (!rangeOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (rangeRef.current && !rangeRef.current.contains(e.target as Node)) {
+        setRangeOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [rangeOpen]);
+
+  const rangeLo =
+    rangeFrom && rangeTo ? (rangeFrom <= rangeTo ? rangeFrom : rangeTo) : '';
+  const rangeHi =
+    rangeFrom && rangeTo ? (rangeFrom <= rangeTo ? rangeTo : rangeFrom) : '';
+  const rangeCount =
+    rangeLo && rangeHi
+      ? allPlans.filter(
+          (p) =>
+            p.date >= rangeLo && p.date <= rangeHi && (!rangeDoneOnly || p.done),
+        ).length
+      : 0;
+
+  const handleRangeCopy = async () => {
+    if (!rangeLo || !rangeHi || rangeCount === 0) return;
+    const items = allPlans.filter(
+      (p) =>
+        p.date >= rangeLo && p.date <= rangeHi && (!rangeDoneOnly || p.done),
+    );
+    const ok = await copyText(buildCopyBody(items));
+    if (ok) {
+      setRangeOpen(false);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
+
   const copyText = async (value: string): Promise<boolean> => {
     try {
       if (navigator.clipboard && window.isSecureContext) {
@@ -123,27 +197,7 @@ export default function DayPanel({
   const handleCopy = async () => {
     const toCopy = allPlans.filter((p) => selected.has(p.id));
     if (toCopy.length === 0) return;
-    const fmt = (p: Plan) => {
-      const note = p.note ? `（${p.note}）` : '';
-      const dur = p.duration ? `（${p.duration === '01' ? '1' : p.duration}h）` : '';
-      return `${p.title}${note}${dur}`;
-    };
-    // 只勾了一天时保持原格式；跨天时按日期分组，便于直接粘贴成日报
-    const dates = [...new Set(toCopy.map((p) => p.date))].sort();
-    const body =
-      dates.length === 1
-        ? toCopy.map(fmt).join('\n')
-        : dates
-            .map((d) => {
-              const wd = WEEKDAYS[parseDate(d).getDay()];
-              const head = `【${Number(d.slice(5, 7))}月${Number(d.slice(8, 10))}日 周${wd}】`;
-              return `${head}\n${toCopy
-                .filter((p) => p.date === d)
-                .map(fmt)
-                .join('\n')}`;
-            })
-            .join('\n');
-    const ok = await copyText(body);
+    const ok = await copyText(buildCopyBody(toCopy));
     if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
@@ -263,6 +317,54 @@ export default function DayPanel({
               清空
             </button>
           )}
+          <div className="range-wrap" ref={rangeRef}>
+            <button
+              className="range-btn"
+              onClick={openRange}
+              title="选一个日期范围，一键复制该范围内的任务"
+            >
+              按日期复制
+            </button>
+            {rangeOpen && (
+              <div className="range-pop">
+                <div className="range-title">按日期范围复制</div>
+                <div className="range-row">
+                  <input
+                    type="date"
+                    value={rangeFrom}
+                    onChange={(e) => setRangeFrom(e.target.value)}
+                  />
+                  <span className="range-sep">至</span>
+                  <input
+                    type="date"
+                    value={rangeTo}
+                    onChange={(e) => setRangeTo(e.target.value)}
+                  />
+                </div>
+                <label className="range-check">
+                  <input
+                    type="checkbox"
+                    checked={rangeDoneOnly}
+                    onChange={(e) => setRangeDoneOnly(e.target.checked)}
+                  />
+                  仅已完成任务
+                </label>
+                <div className="range-foot">
+                  <span className="range-count">{rangeCount} 条任务</span>
+                  <button className="range-cancel" onClick={() => setRangeOpen(false)}>
+                    取消
+                  </button>
+                  <button
+                    className="copy-btn"
+                    onClick={handleRangeCopy}
+                    disabled={rangeCount === 0}
+                  >
+                    复制
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <button
             className="copy-btn"
             onClick={handleCopy}
