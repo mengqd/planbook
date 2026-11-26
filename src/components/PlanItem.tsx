@@ -16,7 +16,7 @@ interface Props {
   onRemove: (id: string) => void;
 }
 
-/** 工时时长枚举，与 seca-oa 的 workOvertimeOptions 完全一致；'01' 表示加班 1 小时 */
+/** 工时时长枚举（小时数）；'01' 表示加班 1 小时 */
 const DURATION_OPTIONS = ['01', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
 const durationLabel = (v: string) => (v === '01' ? '1h' : `${v}h`);
@@ -142,7 +142,7 @@ export default function PlanItem({
               value={plan.duration ?? ''}
               onChange={(e) => onUpdate(plan.id, { duration: e.target.value || undefined })}
               onDoubleClick={(e) => e.stopPropagation()}
-              title="工时时长（提交日报自动带入，复制选中时一并复制）"
+              title="工时时长（复制选中时一并复制）"
             >
               <option value="">时长</option>
               {DURATION_OPTIONS.map((v) => (

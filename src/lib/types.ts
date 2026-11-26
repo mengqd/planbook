@@ -16,7 +16,7 @@ export interface Plan {
   completedAt?: string | null;
   dueAt?: string | null; // 截止时间（ISO），设置后用于未完成列表的紧急度展示
   attachments?: Attachment[];
-  /** 工时时长（seca-oa 的 workOvertime 枚举值：'8','2',...,'01'），提交日报与复制选中时使用 */
+  /** 工时时长（小时数枚举：'8','2',...,'01'），复制选中时一并复制 */
   duration?: string;
 }
 

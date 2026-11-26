@@ -9,7 +9,6 @@ import { initHolidays } from './lib/holidays';
 import UnfinishedDialog from './components/UnfinishedDialog';
 import LabelManagerDialog from './components/LabelManagerDialog';
 import SearchDialog from './components/SearchDialog';
-import OaReportDialog from './components/OaReportDialog';
 import type { NoteFocus } from './components/DayPanel';
 
 export default function App() {
@@ -38,7 +37,6 @@ export default function App() {
   const [todoOpen, setTodoOpen] = useState(false);
   const [labelOpen, setLabelOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [oaOpen, setOaOpen] = useState(false);
   const [noteFocus, setNoteFocus] = useState<NoteFocus | null>(null);
   const [, setTick] = useState(0);
 
@@ -83,12 +81,6 @@ export default function App() {
       <header className="topbar">
         <div className="brand">🗒 便签</div>
         <div className="actions">
-          <button
-            onClick={() => setOaOpen(true)}
-            title="把已完成的任务提交到 seca-oa 工时（日报/周报）"
-          >
-            提交日报
-          </button>
           <button
             onClick={() => setSearchOpen(true)}
             title="搜索所有任务（标题 / 备注 / 日期）"
@@ -195,9 +187,6 @@ export default function App() {
         }}
       />
 
-      {oaOpen && (
-        <OaReportDialog plans={plans} onClose={() => setOaOpen(false)} />
-      )}
     </div>
   );
 }
