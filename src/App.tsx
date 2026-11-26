@@ -10,6 +10,7 @@ import UnfinishedDialog from './components/UnfinishedDialog';
 import LabelManagerDialog from './components/LabelManagerDialog';
 import SearchDialog from './components/SearchDialog';
 import OaReportDialog from './components/OaReportDialog';
+import type { NoteFocus } from './components/DayPanel';
 
 export default function App() {
   const {
@@ -18,6 +19,8 @@ export default function App() {
     selectedPlans,
     plansByDate,
     plans,
+    dayNotes,
+    setDayNote,
     addPlan,
     updatePlan,
     attachFiles,
@@ -36,6 +39,7 @@ export default function App() {
   const [labelOpen, setLabelOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [oaOpen, setOaOpen] = useState(false);
+  const [noteFocus, setNoteFocus] = useState<NoteFocus | null>(null);
   const [, setTick] = useState(0);
 
   // 启动时加载用户更新过的节假日数据，再渲染日历
@@ -140,6 +144,9 @@ export default function App() {
             date={selectedDate}
             plans={selectedPlans}
             allPlans={plans}
+            dayNote={dayNotes[selectedDate] ?? ''}
+            onNoteChange={(text) => setDayNote(selectedDate, text)}
+            noteFocus={noteFocus}
             onAdd={addPlan}
             onToggle={togglePlan}
             onUpdate={updatePlan}
@@ -179,6 +186,12 @@ export default function App() {
         onJump={(d) => {
           setSelectedDate(d);
           setSearchOpen(false);
+        }}
+        dayNotes={dayNotes}
+        onNoteJump={(d, kw) => {
+          setSelectedDate(d);
+          setSearchOpen(false);
+          setNoteFocus({ date: d, keyword: kw, ts: Date.now() });
         }}
       />
 

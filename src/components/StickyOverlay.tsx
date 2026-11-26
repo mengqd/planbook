@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Plan } from '../lib/types';
-import { loadPlans, savePlans } from '../lib/storage';
+import { loadStore, savePlans } from '../lib/storage';
 import { listen } from '@tauri-apps/api/event';
 import {
   closeStickyWindow,
@@ -33,11 +33,14 @@ export default function StickyOverlay() {
     () => localStorage.getItem(LS_THEME) === 'light',
   );
   const inputRef = useRef<HTMLInputElement>(null);
+  // 保留记事本数据：本窗口保存任务时必须原样写回，否则会覆盖掉主窗口写的记事
+  const dayNotesRef = useRef<Record<string, string>>({});
 
   const refresh = useCallback(async () => {
     try {
-      const data = await loadPlans();
-      setAll(data);
+      const store = await loadStore();
+      setAll(store.plans ?? []);
+      dayNotesRef.current = store.dayNotes ?? {};
     } catch (e) {
       console.warn('[planbook] 便签读取失败', e);
     }
@@ -86,7 +89,7 @@ export default function StickyOverlay() {
   const persist = async (next: Plan[]) => {
     setAll(next);
     try {
-      await savePlans(next);
+      await savePlans(next, dayNotesRef.current);
     } catch (e) {
       console.warn('[planbook] 便签保存失败', e);
     }

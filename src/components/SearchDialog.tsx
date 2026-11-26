@@ -11,9 +11,13 @@ interface Props {
   open: boolean;
   onClose: () => void;
   plans: Plan[];
+  /** 每天独立的记事本：key=日期 */
+  dayNotes: Record<string, string>;
   onToggle: (id: string) => void;
   /** 点击某个日期：跳转到日历对应日期 */
   onJump: (date: string) => void;
+  /** 点击某天的记事命中：跳转并定位到记事本中关键词位置 */
+  onNoteJump: (date: string, keyword: string) => void;
 }
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
@@ -25,7 +29,7 @@ function dayInfo(date: string, today: string) {
 }
 
 // 大小写不敏感地把匹配片段用 <mark> 高亮
-function Highlight({ text, q }: { text: string; q: string }) {
+export function Highlight({ text, q }: { text: string; q: string }) {
   const kw = q.trim().toLowerCase();
   if (!kw) return <>{text}</>;
   const lower = text.toLowerCase();
@@ -45,12 +49,23 @@ function Highlight({ text, q }: { text: string; q: string }) {
   return <>{parts}</>;
 }
 
+/** 截取关键词前后的片段，展示记事本命中上下文 */
+function makeSnippet(text: string, kw: string): string {
+  const idx = text.toLowerCase().indexOf(kw);
+  if (idx === -1) return text.slice(0, 60);
+  const from = Math.max(0, idx - 24);
+  const to = Math.min(text.length, idx + kw.length + 36);
+  return `${from > 0 ? '…' : ''}${text.slice(from, to)}${to < text.length ? '…' : ''}`;
+}
+
 export default function SearchDialog({
   open,
   onClose,
   plans,
+  dayNotes,
   onToggle,
   onJump,
+  onNoteJump,
 }: Props) {
   const [q, setQ] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -105,6 +120,19 @@ export default function SearchDialog({
     return entries;
   }, [plans, q]);
 
+  // 记事本命中：模糊匹配每天记事内容，按日期排序
+  const noteHits = useMemo(() => {
+    const kw = q.trim().toLowerCase();
+    if (!kw) return [];
+    return Object.entries(dayNotes)
+      .filter(([, text]) => text.toLowerCase().includes(kw))
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, text]) => ({
+        date,
+        snippet: makeSnippet(text, kw),
+      }));
+  }, [dayNotes, q]);
+
   if (!open) return null;
 
   const total = groups.reduce((n, [, ps]) => n + ps.length, 0);
@@ -134,14 +162,37 @@ export default function SearchDialog({
             }}
           />
           <div className="search-count">
-            {q.trim() ? `匹配 ${total} 项` : `共 ${total} 项`}
+            {q.trim()
+              ? `任务 ${total} · 记事 ${noteHits.length}`
+              : `共 ${total} 项`}
           </div>
         </div>
 
         <div className="modal-body todo-body">
-          {total === 0 && (
+          {total === 0 && noteHits.length === 0 && (
             <div className="todo-empty">
               {q.trim() ? '没有匹配的任务 🔍' : '还没有任何任务'}
+            </div>
+          )}
+
+          {noteHits.length > 0 && (
+            <div className="note-hits">
+              <div className="note-hits-title">📝 记事本 · {noteHits.length} 天命中</div>
+              {noteHits.map((h) => (
+                <button
+                  key={h.date}
+                  className="note-hit-item"
+                  title="跳转到那天的记事本并定位"
+                  onClick={() => onNoteJump(h.date, q.trim())}
+                >
+                  <span className="note-hit-date">
+                    {h.date} {dayInfo(h.date, today).tag}
+                  </span>
+                  <span className="note-hit-snip">
+                    <Highlight text={h.snippet} q={q} />
+                  </span>
+                </button>
+              ))}
             </div>
           )}
 

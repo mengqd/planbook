@@ -9,42 +9,64 @@ const LS_KEY = 'planbook:plans';
 const isTauri =
   typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
-export async function loadPlans(): Promise<Plan[]> {
+/** 加载完整数据（任务 + 每日记事本） */
+export async function loadStore(): Promise<Store> {
   if (isTauri) {
     try {
       const store = await invoke<Store>('load_plans');
-      return store?.plans ?? [];
+      return store ?? { version: 1, plans: [] };
     } catch (e) {
       console.warn('[planbook] tauri load failed, fallback to localStorage', e);
     }
   }
   try {
     const raw = localStorage.getItem(LS_KEY);
-    return raw ? (JSON.parse(raw) as Plan[]) : [];
+    if (!raw) return { version: 1, plans: [] };
+    const data = JSON.parse(raw);
+    // 兼容旧版只存 Plan 数组的格式
+    if (Array.isArray(data)) return { version: 1, plans: data as Plan[] };
+    return { version: 1, plans: data.plans ?? [], dayNotes: data.dayNotes };
   } catch {
-    return [];
+    return { version: 1, plans: [] };
   }
 }
 
-export async function savePlans(plans: Plan[]): Promise<void> {
+export async function loadPlans(): Promise<Plan[]> {
+  return (await loadStore()).plans ?? [];
+}
+
+export async function savePlans(
+  plans: Plan[],
+  dayNotes?: Record<string, string>,
+): Promise<void> {
   if (isTauri) {
     try {
       const source = currentWindowLabel();
-      await invoke('save_plans', { plans, source });
+      await invoke('save_plans', {
+        plans,
+        ...(dayNotes ? { dayNotes } : {}),
+        source,
+      });
       return;
     } catch (e) {
       console.warn('[planbook] tauri save failed, fallback to localStorage', e);
     }
   }
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(plans));
+    localStorage.setItem(
+      LS_KEY,
+      JSON.stringify({ version: 1, plans, ...(dayNotes ? { dayNotes } : {}) }),
+    );
   } catch (e) {
     console.warn('[planbook] localStorage save failed', e);
   }
 }
 
 /** 导出：Tauri 下存到“下载”目录并返回路径；浏览器下触发下载。返回路径或 null */
-export async function exportPlans(plans: Plan[]): Promise<string | null> {
+export async function exportPlans(
+  plans: Plan[],
+  dayNotes?: Record<string, string>,
+): Promise<string | null> {
   if (isTauri) {
     try {
       const p = await save({
@@ -52,16 +74,29 @@ export async function exportPlans(plans: Plan[]): Promise<string | null> {
         filters: [{ name: 'Planbook 数据', extensions: ['json'] }],
       });
       if (!p) return null;
-      const path = await invoke<string>('export_plans', { path: p, plans });
+      const path = await invoke<string>('export_plans', {
+        path: p,
+        plans,
+        ...(dayNotes ? { dayNotes } : {}),
+      });
       return path;
     } catch (e) {
       console.warn('[planbook] tauri export failed', e);
       return null;
     }
   }
-  const blob = new Blob([JSON.stringify({ version: 1, plans }, null, 2)], {
-    type: 'application/json',
-  });
+  const blob = new Blob(
+    [
+      JSON.stringify(
+        { version: 1, plans, ...(dayNotes ? { dayNotes } : {}) },
+        null,
+        2,
+      ),
+    ],
+    {
+      type: 'application/json',
+    },
+  );
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -71,8 +106,8 @@ export async function exportPlans(plans: Plan[]): Promise<string | null> {
   return null;
 }
 
-/** 导入：Tauri 下弹文件选择框；浏览器下用 <input type=file>。返回计划数组或 null */
-export async function importPlans(): Promise<Plan[] | null> {
+/** 导入：Tauri 下弹文件选择框；浏览器下用 <input type=file>。返回完整数据或 null */
+export async function importPlans(): Promise<Store | null> {
   if (isTauri) {
     try {
       const p = await open({
@@ -81,7 +116,7 @@ export async function importPlans(): Promise<Plan[] | null> {
       });
       if (!p || Array.isArray(p)) return null;
       const store = await invoke<Store>('import_plans', { path: p });
-      return store?.plans ?? [];
+      return store ?? null;
     } catch (e) {
       throw new Error(typeof e === 'string' ? e : '导入文件解析失败');
     }
@@ -101,7 +136,11 @@ export async function importPlans(): Promise<Plan[] | null> {
         try {
           const data = JSON.parse(String(r.result));
           if (Array.isArray(data?.plans)) {
-            resolve(data.plans as Plan[]);
+            resolve({
+              version: 1,
+              plans: data.plans as Plan[],
+              dayNotes: data.dayNotes,
+            });
           } else {
             reject(new Error('文件格式不正确：顶层需包含 "plans" 数组'));
           }

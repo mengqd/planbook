@@ -8,12 +8,25 @@ import PlanItem from './PlanItem';
 import DateTimePicker from './DateTimePicker';
 import LabelDropdown from './LabelDropdown';
 import NewTaskFromFilesDialog from './NewTaskFromFilesDialog';
+import { Highlight } from './SearchDialog';
+
+/** 搜索跳转定位请求：跳到某天记事本中的关键词位置 */
+export interface NoteFocus {
+  date: string;
+  keyword: string;
+  ts: number;
+}
 
 interface Props {
   date: string;
   plans: Plan[];
   /** 全量任务（跨天复制选中时使用） */
   allPlans: Plan[];
+  /** 当天的记事内容（每天独立保存） */
+  dayNote: string;
+  onNoteChange: (text: string) => void;
+  /** 搜索命中的定位请求（通过 ts 区分先后） */
+  noteFocus: NoteFocus | null;
   onAdd: (
     title: string,
     note?: string,
@@ -68,6 +81,9 @@ export default function DayPanel({
   date,
   plans,
   allPlans,
+  dayNote,
+  onNoteChange,
+  noteFocus,
   onAdd,
   onToggle,
   onUpdate,
@@ -100,7 +116,48 @@ export default function DayPanel({
   // 打开应用 / 切换日期后自动把焦点放到添加输入框
   useEffect(() => {
     inputRef.current?.focus();
+    setNoteEditing(false); // 切日期时退出记事编辑态
   }, [date]);
+
+  // ---------- 每日任意记事 ----------
+  const [noteEditing, setNoteEditing] = useState(false);
+  const [noteDraft, setNoteDraft] = useState('');
+  const noteCancelRef = useRef(false);
+  const noteViewRef = useRef<HTMLDivElement>(null);
+
+  const startNoteEdit = () => {
+    setNoteDraft(dayNote);
+    noteCancelRef.current = false;
+    setNoteEditing(true);
+  };
+  const commitNote = () => {
+    setNoteEditing(false);
+    if (noteCancelRef.current) {
+      noteCancelRef.current = false;
+      return;
+    }
+    const t = noteDraft.trim();
+    if (t !== dayNote) onNoteChange(t);
+  };
+  const cancelNote = () => {
+    noteCancelRef.current = true;
+    setNoteEditing(false);
+  };
+
+  // 搜索命中：退出编辑态显示高亮，并滚动到关键词位置
+  const noteFocusTs = noteFocus?.ts;
+  const noteFocusDate = noteFocus?.date;
+  const noteFocusKw = noteFocus?.keyword ?? '';
+  useEffect(() => {
+    if (!noteFocusTs || noteFocusDate !== date) return;
+    setNoteEditing(false);
+    const t = window.setTimeout(() => {
+      noteViewRef.current
+        ?.querySelector('mark')
+        ?.scrollIntoView({ block: 'center' });
+    }, 200);
+    return () => window.clearTimeout(t);
+  }, [noteFocusTs, noteFocusDate, date]);
 
   // 选中集合跨天保留：统计时用全量任务，勾过其它日期的任务也会算进来
   const selectedAll = allPlans.filter((p) => selected.has(p.id));
@@ -412,6 +469,45 @@ export default function DayPanel({
           />
         ))}
       </ul>
+
+      {/* 每日任意记事：每天独立保存，可被全局搜索并定位到关键词 */}
+      <div className="day-note">
+        <div className="day-note-head">
+          <span className="day-note-label">📝 当日记事</span>
+          {dayNote && !noteEditing && (
+            <span className="day-note-len">{dayNote.length} 字 · 点击编辑</span>
+          )}
+        </div>
+        {noteEditing ? (
+          <textarea
+            className="day-note-input"
+            autoFocus
+            value={noteDraft}
+            rows={6}
+            placeholder="记点什么…（失焦自动保存，Esc 取消）"
+            onChange={(e) => setNoteDraft(e.target.value)}
+            onBlur={commitNote}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') cancelNote();
+            }}
+          />
+        ) : dayNote ? (
+          <div
+            className="day-note-view"
+            ref={noteViewRef}
+            onClick={startNoteEdit}
+          >
+            <Highlight
+              text={dayNote}
+              q={noteFocusDate === date ? noteFocusKw : ''}
+            />
+          </div>
+        ) : (
+          <div className="day-note-empty" onClick={startNoteEdit}>
+            记点什么…（每天独立保存，可被搜索）
+          </div>
+        )}
+      </div>
 
       {newTaskInfos && (
         <NewTaskFromFilesDialog

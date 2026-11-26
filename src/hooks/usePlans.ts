@@ -3,7 +3,7 @@ import { listen } from '@tauri-apps/api/event';
 import type { Attachment, Plan } from '../lib/types';
 import { currentWindowLabel } from '../lib/window';
 import {
-  loadPlans,
+  loadStore,
   savePlans,
   exportPlans,
   importPlans,
@@ -21,6 +21,8 @@ function uid(): string {
 
 export function usePlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
+  /** 每天独立的记事本：key=日期 */
+  const [dayNotes, setDayNotes] = useState<Record<string, string>>({});
   const [selectedDate, setSelectedDate] = useState<DateStr>(todayStr());
   const [loading, setLoading] = useState(true);
   const saveTimer = useRef<number | null>(null);
@@ -29,10 +31,11 @@ export function usePlans() {
 
   useEffect(() => {
     let active = true;
-    loadPlans()
-      .then((p) => {
+    loadStore()
+      .then((store) => {
         if (active) {
-          setPlans(p);
+          setPlans(store.plans ?? []);
+          setDayNotes(store.dayNotes ?? {});
           setLoading(false);
         }
       })
@@ -45,9 +48,10 @@ export function usePlans() {
   // 其他窗口（如桌面便签）改了数据时，重新从磁盘加载
   const reloadFromDisk = useCallback(async () => {
     try {
-      const data = await loadPlans();
+      const store = await loadStore();
       skipNextSave.current = true;
-      setPlans(data);
+      setPlans(store.plans ?? []);
+      setDayNotes(store.dayNotes ?? {});
     } catch (e) {
       console.warn('[planbook] 重新加载失败', e);
     }
@@ -77,12 +81,14 @@ export function usePlans() {
     }
     if (saveTimer.current) window.clearTimeout(saveTimer.current);
     saveTimer.current = window.setTimeout(() => {
-      savePlans(plans).catch((e) => console.error('[planbook] 保存失败', e));
+      savePlans(plans, dayNotes).catch((e) =>
+        console.error('[planbook] 保存失败', e),
+      );
     }, 500);
     return () => {
       if (saveTimer.current) window.clearTimeout(saveTimer.current);
     };
-  }, [plans, loading]);
+  }, [plans, dayNotes, loading]);
 
   const plansByDate = useMemo(() => {
     const m = new Map<string, Plan[]>();
@@ -168,16 +174,29 @@ export function usePlans() {
     );
   }, []);
 
+  /** 设置某天的记事内容；空文本表示删除该天记事 */
+  const setDayNote = useCallback((date: string, text: string) => {
+    setDayNotes((prev) => {
+      const next = { ...prev };
+      if (text) next[date] = text;
+      else delete next[date];
+      return next;
+    });
+  }, []);
+
   const doExport = useCallback(async () => {
-    const path = await exportPlans(plans);
+    const path = await exportPlans(plans, dayNotes);
     if (path) alert(`已导出到：\n${path}`);
     else alert('已导出（浏览器下载）');
-  }, [plans]);
+  }, [plans, dayNotes]);
 
   const doImport = useCallback(async () => {
     try {
       const imported = await importPlans();
-      if (imported) setPlans(imported);
+      if (imported) {
+        setPlans(imported.plans ?? []);
+        setDayNotes(imported.dayNotes ?? {});
+      }
     } catch (e) {
       alert(
         '导入失败：' +
@@ -195,6 +214,8 @@ export function usePlans() {
 
   return {
     plans,
+    dayNotes,
+    setDayNote,
     selectedDate,
     setSelectedDate,
     selectedPlans,

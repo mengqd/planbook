@@ -1782,6 +1782,105 @@ mark {
   padding: 0 1px;
 }
 
+/* ---------- 每日任意记事 ---------- */
+.day-note {
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.day-note-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.day-note-label {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.day-note-len {
+  font-size: 11px;
+  color: var(--text-soft);
+}
+.day-note-view {
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: text;
+  max-height: 240px;
+  overflow: auto;
+}
+.day-note-view:hover {
+  background: var(--brand-soft);
+}
+.day-note-empty {
+  padding: 16px 12px;
+  font-size: 12.5px;
+  color: var(--text-soft);
+  cursor: text;
+}
+.day-note-empty:hover {
+  color: var(--brand);
+}
+.day-note-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  resize: vertical;
+  background: var(--panel);
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  font-family: inherit;
+  min-height: 96px;
+}
+
+/* 搜索结果中的记事本命中 */
+.note-hits {
+  margin-bottom: 14px;
+}
+.note-hits-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-soft);
+  padding: 4px 2px 8px;
+}
+.note-hit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--panel-2);
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  color: var(--text);
+}
+.note-hit-item:hover {
+  border-color: var(--brand);
+}
+.note-hit-date {
+  font-size: 11.5px;
+  color: var(--brand);
+  font-weight: 600;
+}
+.note-hit-snip {
+  font-size: 12.5px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
 /* ---------- 任务附件（本地文件 / 文件夹） ---------- */
 .plan-item.drop-target {
   border-color: var(--brand);

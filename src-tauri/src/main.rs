@@ -89,6 +89,9 @@ fn open_attachment(path: String, reveal: bool) -> Result<(), String> {
 struct Store {
     version: u8,
     plans: Vec<Plan>,
+    /// 每天独立的记事本：key=日期（YYYY-MM-DD）。旧数据无此字段，反序列化默认 None
+    #[serde(default, rename = "dayNotes", skip_serializing_if = "Option::is_none")]
+    day_notes: Option<std::collections::HashMap<String, String>>,
 }
 
 /// 返回数据目录：~/Library/Application Support/com.planbook.app
@@ -108,6 +111,7 @@ fn load_plans(app: tauri::AppHandle) -> Result<Store, String> {
         return Ok(Store {
             version: 1,
             plans: Vec::new(),
+            day_notes: None,
         });
     }
     let data = fs::read_to_string(&path).map_err(|e| format!("读取失败: {e}"))?;
@@ -122,12 +126,22 @@ fn load_plans(app: tauri::AppHandle) -> Result<Store, String> {
 fn save_plans(
     app: tauri::AppHandle,
     plans: Vec<Plan>,
+    day_notes: Option<std::collections::HashMap<String, String>>,
     source: String,
 ) -> Result<(), String> {
     let path = store_path(&app)?;
+    // 旧版调用方不传记事本时，沿用磁盘上已有数据，避免被覆盖清空
+    let day_notes = match day_notes {
+        Some(n) => Some(n),
+        None => fs::read_to_string(&path)
+            .ok()
+            .and_then(|s| serde_json::from_str::<Store>(&s).ok())
+            .and_then(|old| old.day_notes),
+    };
     let store = Store {
         version: 1,
         plans,
+        day_notes,
     };
     let data =
         serde_json::to_string_pretty(&store).map_err(|e| format!("序列化失败: {e}"))?;
@@ -188,10 +202,15 @@ fn save_holidays(app: tauri::AppHandle, days: Vec<OfficialDay>) -> Result<String
 
 /// 导出：写入 JS 端选定的路径，返回该路径
 #[tauri::command]
-fn export_plans(path: String, plans: Vec<Plan>) -> Result<String, String> {
+fn export_plans(
+    path: String,
+    plans: Vec<Plan>,
+    day_notes: Option<std::collections::HashMap<String, String>>,
+) -> Result<String, String> {
     let store = Store {
         version: 1,
         plans,
+        day_notes,
     };
     let data =
         serde_json::to_string_pretty(&store).map_err(|e| format!("序列化失败: {e}"))?;

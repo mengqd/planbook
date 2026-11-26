@@ -23,4 +23,6 @@ export interface Plan {
 export interface Store {
   version: number;
   plans: Plan[];
+  /** 每天独立的记事本：key=日期（YYYY-MM-DD）。旧数据可能没有该字段 */
+  dayNotes?: Record<string, string>;
 }
